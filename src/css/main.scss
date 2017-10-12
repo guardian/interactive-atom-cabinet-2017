@@ -11,3 +11,25 @@
 .interactive-atom {
     margin: 0 !important;
 }
+
+.gv-chart{
+	position:relative;
+	height:640px;
+	width:100%;
+}
+
+.axis--x path {
+  display: none;
+}
+
+.gv-line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 20px;
+  opacity: 0.5;
+}
+
+.city{
+	height:100%;
+	width:100%;
+}
