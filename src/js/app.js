@@ -5,13 +5,11 @@ import * as d3 from "d3"
 // import {line} from "d3-line"
 // import {select} from "d3-select";    
 
-
-
 var containerDiv = d3.select(".gv-chart");
 
 var margin = {top: 20, right: 20, bottom: 50, left: 70},
     width = 500 - margin.left - margin.right,
-    height = 600 - margin.top - margin.bottom;
+    height = 1000 - margin.top - margin.bottom;
 
 xr.get('https://interactive.guim.co.uk/docsdata-test/1VXBeHCsgJB-SUXjgIlfZk2W8qdZicCw7vs4JWd4lkJY.json').then((resp) => {
     let d = resp.data.sheets;
@@ -29,23 +27,26 @@ function drawChart(d){
     var y = d3.scaleLinear().range([height, 0]);
     var z = d3.scaleOrdinal(d3.schemeCategory10);
 
-    var svg = containerDiv.append("svg").attr("width", "1000px").attr("height", "800px"),
+    var svg = containerDiv.append("svg").attr("width", "1000px").attr("height", "1200px"),
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     x.domain([0, (d.max_x + 2)]);
 
     y.domain([0, d.max_y]);
 
-    z.domain(d.ministries.map(function(c) { return Number(c.sortOn); }));
+    z.domain(d.ministries.map(function(c) {  return Number(c.sortOn); }));
 
-    var cities = d.politicians.map(function(obj) {
-      console.log(obj.objArr[0].Name)
+    var tickLabelsY = d.ministries.reverse();
 
-      return {
+    console.log(tickLabelsY)
+
+    var politicians = d.politicians.map(function(obj) {
+
+      return {    
         id: obj.sortOn,
         jobTitle: obj.objArr[0].Name,
         values: obj.objArr.map(function(d) {
-          return { X: d.xPlot, Y: d.yPlot };
+          return { X: d.xPlot, Y: d.yPlot, id: obj.sortOn, jobTitle: obj.objArr[0].Title };
         })
       };
     });
@@ -66,10 +67,15 @@ function drawChart(d){
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x));
 
+
+
+
   g.append("g")
       .attr("class", "axis axis--y")
       .attr("transform", "translate(" + x(0.5) + ",0)")
-      .call(d3.axisLeft(y))
+      
+      .call(d3.axisLeft(y).ticks(tickLabelsY.length)
+      .tickFormat(function(d,i){ return tickLabelsY[i].jobTitle }))
     .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
@@ -77,39 +83,50 @@ function drawChart(d){
       .attr("fill", "#000")
       .text("Cameron");
 
-  g.append("g")
-      .attr("class", "axis axis--y no-ticks")
-      .attr("transform", "translate(" + x(1.5) + ",0)")
-      .call(d3.axisLeft(y))
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("fill", "#000")
-      .text("May v1");
+  // g.append("g")
+  //     .attr("class", "axis axis--y no-ticks")
+  //     .attr("transform", "translate(" + x(1.5) + ",0)")
+  //     .call(d3.axisLeft(y))
+  //   .append("text")
+  //     .attr("transform", "rotate(-90)")
+  //     .attr("y", 6)
+  //     .attr("dy", "0.71em")
+  //     .attr("fill", "#000")
+  //     .text("May v1");
 
-   g.append("g")
-      .attr("class", "axis axis--y  no-ticks")
-      .attr("transform", "translate(" + x(2.5) + ",0)")
-      .call(d3.axisLeft(y))
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("fill", "#000")
-      .text("May v2");
+  //  g.append("g")
+  //     .attr("class", "axis axis--y  no-ticks")
+  //     .attr("transform", "translate(" + x(2.5) + ",0)")
+  //     .call(d3.axisLeft(y))
+  //   .append("text")
+  //     .attr("transform", "rotate(-90)")
+  //     .attr("y", 6)
+  //     .attr("dy", "0.71em")
+  //     .attr("fill", "#000")
+  //     .text("May v2");
 
   var city = g.selectAll(".city")
-    .data(cities)
+    .data(politicians)
     .enter().append("g")
       .attr("transform", "translate(" + x(0.5) + ",0)")
       .attr("class", "city");
 
   city.append("path")
       .attr("class", "gv-line")
-      .attr("d", function(d) { return lineFunction(d.values) })
-      .style("stroke", function(d) { return z(d.id); });
+      .attr("d", function(d) { return lineFunction(d.values) });
 
+   city.append("g").selectAll("circle")
+      .data(function(d){ return d.values}) 
+      .enter()
+      .append("circle")
+      .attr("r", 15)
+      .attr("data-name", function(dd){ return dd.id })
+      .attr("data-job", function(dd){ return dd.jobTitle })
+      .attr("cx", function(dd){ return dd.X })
+      .attr("cy", function(dd){return dd.Y })
+      .style("fill", "url(#image)")
+      .attr("class","gv-graph-photo-circle");
+//console.log(d.values);
   // city.append("text")
   //     .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
   //     .attr("transform", function(d) { return "translate(" + x(d.value._X) + "," + y(d.value._Y) + ")"; })
@@ -171,35 +188,25 @@ function formatData(data) {
     })
 
     let politicians =  groupBy(a, 'Name');
-
     politicians = sortByKeys(politicians);
-
     let tmp = [];
-
     politicians.map((o) => {
         if(o.sortOn!="TBC"){ tmp.push(o)}
     })
-
     politicians = tmp;
 
-    console.log(politicians);
-
     let ministries = groupBy(a, 'jobRef');
-
     ministries = sortByKeys(ministries);
-
+    ministries.map((o) => {
+      o.jobTitle = o.objArr[0].Title;  
+    })
+    
     newObj.flatArr = a;
-
     newObj.groups = groups;
-
     newObj.jobsArr = jobTitlesArr;
-
     newObj.max_x = maxPlotCabinet;
-
     newObj.max_y = maxPlotJob;
-
     newObj.ministries = ministries;
-
     newObj.politicians = politicians;
 
     return newObj;

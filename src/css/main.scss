@@ -1,6 +1,6 @@
 @import "mq";
 @import "fonts";
-
+$gv-blue: #4bc6df;
 // Uncomment for embeds
 //@import "embed";
 
@@ -14,7 +14,7 @@
 
 .gv-chart{
 	position:relative;
-	height:640px;
+	height:1200px;
 	width:100%;
 }
 
@@ -22,14 +22,22 @@
   display: none;
 }
 
+.axis--y{
+  .tick{
+    // display:none;
+  }
+}
+
 .gv-line {
   fill: none;
-  stroke: steelblue;
-  stroke-width: 20px;
+  stroke: $gv-blue;
+  stroke-width: 7px;
   opacity: 0.5;
 }
 
-.city{
-	height:100%;
-	width:100%;
+
+
+.gv-graph-photo-circle{
+  stroke: $gv-blue;
+  stroke-width: 2px;
 }
