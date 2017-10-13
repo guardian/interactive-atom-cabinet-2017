@@ -50,6 +50,7 @@
   "dependencies": {
     "d3": "^4.11.0",
     "d3-sankey": "^0.7.1",
+    "handlebars": "^4.0.10",
     "request-promise": "^4.2.2",
     "xr": "^0.3.0"
   }

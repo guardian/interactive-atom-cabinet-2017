@@ -16,15 +16,38 @@ $gv-blue: #4bc6df;
 	position:relative;
 	height:1200px;
 	width:100%;
+
+  svg{
+    text{
+    font-size: 12px;
+    line-height: 16px;
+    font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+    fill: rgb(118,118,118);
+  }
+  }
 }
 
-.axis--x path {
+.axis--x  {
   display: none;
 }
 
 .axis--y{
-  .tick{
-    // display:none;
+  text{
+    font-size: 12px;
+    line-height: 16px;
+    font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+  }
+  &.labels{
+
+    .domain{
+      display:none;
+    }
+  }
+
+  &.cabinet{
+    .tick{
+      display:none;
+    }
   }
 }
 
@@ -35,9 +58,8 @@ $gv-blue: #4bc6df;
   opacity: 0.5;
 }
 
-
-
 .gv-graph-photo-circle{
   stroke: $gv-blue;
   stroke-width: 2px;
+  cursor:pointer;
 }
