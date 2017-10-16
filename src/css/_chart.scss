@@ -1,0 +1,110 @@
+.gv-chart{
+  position:relative;
+  height:1200px;
+  width:100%;
+  background-color: #FFF;
+
+  @include mq(mobileLandscape){
+    height: 1400px
+  }
+
+   @include mq(tablet){
+    height: 1600px
+  }
+
+  svg{
+    text{
+    font-size: 12px;
+    line-height: 16px;
+    font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+    fill: rgb(118,118,118);
+
+    @include mq(tablet){
+      font-size: 14px;
+      line-height: 18px;
+      font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+    }
+  }
+  }
+}
+
+.axis--x  {
+  display: none;
+}
+
+.axis--y{
+  text{
+
+    
+  }
+  &.labels{
+
+    &.right-side{
+      display:none;
+      @include mq(mobileLandscape){
+        display:block;
+      }
+    }
+
+    .domain{
+      display:none;
+    }
+
+    .tick{
+      line{
+         display:none;
+      }
+    }
+  }
+
+  &.blank{
+
+    .tick{
+      display:none;
+    }
+  }
+
+  &.cabinet{
+    .tick{
+      display:none;
+    }
+  }
+}
+
+.gv-line {
+  fill: none;
+  stroke: $gv-no-accent;
+  stroke-width: 7px;
+  opacity: 0.85;
+
+  &.change{
+    stroke: $gv-accent;
+  }
+}
+
+.gv-graph-photo-circle{
+  stroke: $gv-no-accent;
+  stroke-width: 3.5px;
+  cursor:pointer;
+   &.change{
+    stroke: $gv-accent;
+  }
+}
+
+.background-rect{
+  fill:#FFF;
+  &.even{
+
+    fill:rgba($gv-accent,0.1);
+   
+      @include mq(mobileLandscape){
+
+        
+      }
+    
+  }
+}
+
+.gv-img-holder{
+  height: 0;
+}

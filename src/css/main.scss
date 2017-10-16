@@ -1,8 +1,12 @@
 @import "mq";
 @import "fonts";
-$gv-blue: #4bc6df;
+$gv-accent: #4bc6df;
+$gv-no-accent: #63717a;
+$neutral-3:#bdbdbd;
+$neutral-6: #f6f6f6;
 // Uncomment for embeds
-//@import "embed";
+@import "embed";
+@import "chart";
 
 // Uncomment for full screen (including immersive article main media)
 //@import "fullscreen";
@@ -12,58 +16,18 @@ $gv-blue: #4bc6df;
     margin: 0 !important;
 }
 
-.gv-chart{
-	position:relative;
-	height:1200px;
-	width:100%;
+.gv-bg-pic{
+    width: 15;
+    height: 15;
 
-  svg{
-    text{
-    font-size: 12px;
-    line-height: 16px;
-    font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
-    fill: rgb(118,118,118);
-  }
-  }
-}
-
-.axis--x  {
-  display: none;
-}
-
-.axis--y{
-  text{
-    font-size: 12px;
-    line-height: 16px;
-    font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
-  }
-  &.labels{
-
-    .domain{
-      display:none;
+    @include mq(mobileLandscape){
+      width:18;
+      height:18
     }
-  }
 
-  &.cabinet{
-    .tick{
-      display:none;
+    @include mq(tablet){
+      width:30;
+      height:30;
     }
-  }
 }
 
-.gv-line {
-  fill: none;
-  stroke: $gv-blue;
-  stroke-width: 7px;
-  opacity: 0.5;
-}
-
-.gv-graph-photo-circle{
-  stroke: $gv-blue;
-  stroke-width: 2px;
-  cursor:pointer;
-}
-
-.gv-img-holder{
-  height: 0;
-}

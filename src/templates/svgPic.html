@@ -1,8 +1,8 @@
  {{#each objArr}} 
-<svg id="mySvg" width="80" height="80">
+<svg id="mySvg" width="{{imgSize}}" height="{{imgSize}}">
       <defs id="mdef">
-        <pattern id="image-{{dataRef}}" x="0" y="0" height="30" width="30">
-          <image x="0" y="0" width="30" height="30" xlink:href="{{imgPath}}"></image>
+        <pattern id="image-{{dataRef}}" x="0" y="0" height="{{imgSize}}" width="{{imgSize}}">
+          <image x="0" y="0" width="{{imgSize}}" height="{{imgSize}}" xlink:href="{{imgPath}}"></image>
         </pattern>
 </svg>  
 {{/each}} 

@@ -12,9 +12,30 @@ const silhouetteURL = 'https://media.guim.co.uk/e989b6d5e1166a8cb5a3cd71be2189d9
 
 var containerDiv = d3.select(".gv-chart");
 
-var margin = {top: 20, right: 20, bottom: 50, left: 100},
-    width = 500 - margin.left - margin.right,
-    height = 1000 - margin.top - margin.bottom;
+//var dimensionsDiv = document.querySelector(".gv-chart");
+var embedWidth = containerDiv.node().getBoundingClientRect().width;
+var width = embedWidth
+var height = containerDiv.node().getBoundingClientRect().height;
+var margin, circleRadius, textWrapVal;
+
+var plotBgH = 0;
+
+ if(width <= 380){
+      circleRadius = 15;
+      margin = {top: 20, right: 0, bottom: 40, left: 80};
+      textWrapVal = 70;
+    }else if(width <= 620){
+      circleRadius = 20;
+      margin = {top: 24, right: 100, bottom: 50, left: 100};
+      textWrapVal = 80;
+    }else{
+      circleRadius = 22;
+      margin = {top: 30, right: 100, bottom: 50, left: 100};
+      textWrapVal = 100;
+    }
+
+    width = width - margin.left - margin.right,
+    height = height - margin.top - margin.bottom;
 
 xr.get('https://interactive.guim.co.uk/docsdata-test/1VXBeHCsgJB-SUXjgIlfZk2W8qdZicCw7vs4JWd4lkJY.json').then((resp) => {
     let d = resp.data.sheets;
@@ -56,7 +77,7 @@ function addSvgBackgrounds(d){
 
 }
 
-function drawChart(d){
+function drawChart(dataIn){
     var x = d3.scaleLinear().range([0, width]);
     var y = d3.scaleLinear().range([height, 0]);
     var z = d3.scaleOrdinal(d3.schemeCategory10);
@@ -64,20 +85,23 @@ function drawChart(d){
     var svg = containerDiv.append("svg").attr("width",  margin.left+margin.right+width+"px").attr("height", margin.top+margin.bottom+height+"px"),
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    x.domain([0, (d.max_x + 2)]);
+    x.domain([0, (dataIn.max_x + 2)]);
 
-    y.domain([0, d.max_y]);
+    y.domain([0, dataIn.max_y]);
 
-    z.domain(d.ministries.map(function(c) {  return Number(c.sortOn); }));
+    z.domain(dataIn.ministries.map(function(c) {  return Number(c.sortOn); }));
 
-    var tickLabelsY = d.tickLabelsY.reverse();
+    var tickLabelsY = dataIn.tickLabelsY.reverse();
 
-    var politicians = d.politicians.map(function(obj) {
+    var politicians = dataIn.politicians.map(function(obj) {
+       obj.jobChange ? obj.changeClass = "change" :  obj.changeClass = "nochange" ;
+
       return {    
         id: obj.sortOn,
         jobTitle: obj.objArr[0].Name,
+        changeClass: obj.changeClass, 
         values: obj.objArr.map(function(d) {
-          return { X: d.xPlot, Y: d.yPlot, id: obj.sortOn, jobTitle: obj.objArr[0].Title };
+          return { X: d.xPlot, Y: d.yPlot, changeClass: obj.changeClass, id: obj.sortOn, jobTitle: obj.objArr[0].Title };
         })
       };
     });
@@ -94,24 +118,88 @@ function drawChart(d){
     // .y(function(d) { return y(20); }) // set the y values for the line generator 
     // .curve(d3.curveMonotoneX) // apply smoothing to the line
 
-    svg.append("g")
+  //   var city = g.selectAll(".city")
+  //   .data(politicians)
+  //   .enter().append("g")
+  //     .attr("transform", "translate(" + x(0.5) + ",0)")
+  //     .attr("class", "city");
+
+  // city.append("path")
+  //     .attr("class", function(d){ return "gv-line "+d.changeClass})
+  //     .attr("data-name", function(d) { return d.jobTitle.split(" ").join("-").toLowerCase() })
+  //     .attr("d", function(d) { return lineFunction(d.values) });
+
+    // city.append("g").selectAll("circle")
+    //   .data(function(d){ return d.values}) 
+    //   .enter()
+    //   .append("circle")
+    //   .attr("r", circleRadius)
+    //   .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
+    //   .attr("data-job", function(dd){ return dd.jobTitle })
+    //   .attr("cx", function(dd){ return dd.X })
+    //   .attr("cy", function(dd){return dd.Y })
+    //   .style("fill", function(dd){ return "url(#image-"+ dd.id.split(" ").join("-").toLowerCase() +")"} )
+    //   .attr("class",function(dd){ return "gv-graph-photo-circle "+dd.changeClass});
+    
+
+    var bg = g.selectAll(".chart-background")
+    .data(tickLabelsY)
+    .enter().append("g")
+      .attr("transform", "translate(0 ,0)")
+      .attr("class", "bg-rects");
+
+    bg.append("rect")
+      .attr("class", function (d,i) { var className; i % 2 == 0 ? className ="background-rect even" :  className ="background-rect odd" ;  return className})
+      .attr("width", embedWidth)
+      .attr("height", dataIn.plotUnitJob)
+      .attr("x",0 - margin.left)
+      .attr("y", function(d,i) { return (i*(dataIn.plotUnitJob))-(margin.top) });
+
+
+  
+
+  svg.append("g")
       .attr("class", "axis axis--x")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x));
 
   svg.append("g")
       .attr("class", "axis axis--y labels")
-      .attr("transform", "translate(0,0)")   
+      .attr("transform", "translate(3,0)")   
       .call(d3.axisLeft(y).ticks(tickLabelsY.length)
       .tickFormat(function(d,i){ return tickLabelsY[i] }))
       .selectAll(".tick")
       .attr("y", 6)
       .attr("x", 6)
       .selectAll(".tick text")
-      .attr("y", 6)
+      .attr("y", 9)
       .attr("x", 6)
       .style("text-anchor", "start")
-      .call(wrap, 80)    
+      .call(wrap, textWrapVal)    
+
+  svg.append("g")
+      .attr("class", "axis axis--y labels right-side")
+      .attr("transform", "translate("+(embedWidth-margin.left)+",0)")   
+      .call(d3.axisLeft(y).ticks(tickLabelsY.length)
+      .tickFormat(function(d,i){ return tickLabelsY[i] }))
+      .selectAll(".tick")
+      .attr("y", 6)
+      .attr("x", 6)
+      .selectAll(".tick text")
+      .attr("y", 9)
+      .attr("x", 6)
+      .style("text-anchor", "start")
+      .call(wrap, textWrapVal)
+
+  // svg.append("g")
+  //     .attr("class", "axis axis--y blank")
+  //     .attr("transform", "translate("+(embedWidth/3)+",0)")   
+  //     .call(d3.axisLeft(y).ticks(tickLabelsY.length)
+  //     .tickFormat(function(d,i){ return tickLabelsY[i] }))
+  //     .selectAll(".tick")
+  //     .attr("y", 6)
+  //     .attr("x", 6)
+      
 
 
 
@@ -155,7 +243,7 @@ function drawChart(d){
       .attr("class", "city");
 
   city.append("path")
-      .attr("class", "gv-line")
+      .attr("class", function(d){ return "gv-line "+d.changeClass})
       .attr("data-name", function(d) { return d.jobTitle.split(" ").join("-").toLowerCase() })
       .attr("d", function(d) { return lineFunction(d.values) });
 
@@ -163,13 +251,13 @@ function drawChart(d){
       .data(function(d){ return d.values}) 
       .enter()
       .append("circle")
-      .attr("r", 15)
+      .attr("r", circleRadius)
       .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
       .attr("data-job", function(dd){ return dd.jobTitle })
       .attr("cx", function(dd){ return dd.X })
       .attr("cy", function(dd){return dd.Y })
       .style("fill", function(dd){ return "url(#image-"+ dd.id.split(" ").join("-").toLowerCase() +")"} )
-      .attr("class","gv-graph-photo-circle");
+      .attr("class",function(dd){ return "gv-graph-photo-circle "+dd.changeClass});
 
   // city.append("text")
   //     .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
@@ -216,8 +304,10 @@ function formatData(data) {
     groups = sortByKeys(groups);
 
     groups.map((obj, k) => {
+     
     	obj.groupRef = k;
-        obj.objArr.map((ob) => {
+        obj.objArr.map((ob,i) => {
+          
         	ob.cabinetRef = obj.groupRef;
         	a.push(ob);
         })
@@ -233,7 +323,7 @@ function formatData(data) {
         o.yPlot = o.jobRef * plotUnitJob;
         o.dataRef = o.Name.split(" ").join("-").toLowerCase();
         if (!o.Photo){ o.Photo = silhouetteURL }
-
+          
         if(k < 27){
           tickLabelsY.push(o.Title)
         }
@@ -247,9 +337,9 @@ function formatData(data) {
      newUniq.dataRef = uniq;
 
         a.map((o) => {
-   
           if(newUniq.dataRef == o.dataRef){
             newUniq.imgPath = o.Photo; 
+            newUniq.imgSize = circleRadius*2;
           }
         })
 
@@ -262,11 +352,23 @@ function formatData(data) {
     politicians = sortByKeys(politicians);
     let tmp = [];
     politicians.map((o) => {
-        if(o.sortOn!="TBC" && o.sortOn!="na" ){ tmp.push(o)}
-          // console.log(o)
+     var tempJob = o.objArr[0].Title;
+
+          o.objArr.map((item) => {
+            o.jobChange = false;
+              if(item.Title != tempJob){
+                  o.jobChange = true;
+              } 
+              console.log(o);
+          });
+
+        if(o.sortOn!="TBC" && o.sortOn!="na" ){  tmp.push(o); }
+        
+        
+
     })
     politicians = tmp;
-
+    console.log(politicians)
    let ministries = groupBy(a, 'jobRef');
     ministries = sortByKeys(ministries);
     ministries.map((o) => {
@@ -282,6 +384,7 @@ function formatData(data) {
     newObj.ministries = ministries;
     newObj.politicians = politicians;
     newObj.uniqueNames = uniqueNames;
+    newObj.plotUnitJob = plotUnitJob;
 
     return newObj;
 
