@@ -14,23 +14,30 @@ var containerDiv = d3.select(".gv-chart");
 
 //var dimensionsDiv = document.querySelector(".gv-chart");
 var embedWidth = containerDiv.node().getBoundingClientRect().width;
+var embedHeight = containerDiv.node().getBoundingClientRect().height;
 var width = embedWidth
-var height = containerDiv.node().getBoundingClientRect().height;
-var margin, circleRadius, textWrapVal;
+var height = embedHeight;
+var margin, circleRadius, textWrapVal, nameLabelPad, lanes;
+
 
 var plotBgH = 0;
 
  if(width <= 380){
       circleRadius = 15;
-      margin = {top: 20, right: 0, bottom: 40, left: 80};
+      nameLabelPad = 12;
+      lanes = [ 0, 72, 144 ];
+      margin = {top: 24, right: 0, bottom: 40, left: 80};
       textWrapVal = 70;
     }else if(width <= 620){
       circleRadius = 20;
-      margin = {top: 24, right: 100, bottom: 50, left: 100};
-      textWrapVal = 80;
+      nameLabelPad = 13;
+      lanes = [ 0, 96, 192 ];
+      margin = {top: 60, right: 120, bottom: 50, left: 140};
+      textWrapVal = 100;
     }else{
       circleRadius = 22;
-      margin = {top: 30, right: 100, bottom: 50, left: 100};
+      lanes = [ 0, 96, 192 ];
+      margin = {top: 30, right: 80, bottom: 50, left: 80};
       textWrapVal = 100;
     }
 
@@ -42,7 +49,7 @@ xr.get('https://interactive.guim.co.uk/docsdata-test/1VXBeHCsgJB-SUXjgIlfZk2W8qd
     var newObj = {};
     newObj = formatData(d.Sheet1);
 
-    buildView(newObj)
+    buildView(newObj);
 
 });
 
@@ -82,8 +89,8 @@ function drawChart(dataIn){
     var y = d3.scaleLinear().range([height, 0]);
     var z = d3.scaleOrdinal(d3.schemeCategory10);
 
-    var svg = containerDiv.append("svg").attr("width",  margin.left+margin.right+width+"px").attr("height", margin.top+margin.bottom+height+"px"),
-    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var svg = containerDiv.append("svg").attr("width",  embedWidth+"px").attr("height", embedHeight+margin.top+margin.bottom +"px"),
+    g = svg.append("g").attr("height",height).attr("width",width).attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     x.domain([0, (dataIn.max_x + 2)]);
 
@@ -110,36 +117,7 @@ function drawChart(dataIn){
     var lineFunction = d3.line()
         .x(function(d) { return d.X; })
         .y(function(d) { return d.Y; })
-        // .curve(d3.curveStepAfter);
-
-    // var line = d3.line()
-    // .x(function(d, i) { return x(10); }) // set the x values for the line generator
-    // .y(function(d) { return y(20); }) // set the y values for the line generator 
-    // .curve(d3.curveMonotoneX) // apply smoothing to the line
-
-  //   var city = g.selectAll(".city")
-  //   .data(politicians)
-  //   .enter().append("g")
-  //     .attr("transform", "translate(" + x(0.5) + ",0)")
-  //     .attr("class", "city");
-
-  // city.append("path")
-  //     .attr("class", function(d){ return "gv-line "+d.changeClass})
-  //     .attr("data-name", function(d) { return d.jobTitle.split(" ").join("-").toLowerCase() })
-  //     .attr("d", function(d) { return lineFunction(d.values) });
-
-    // city.append("g").selectAll("circle")
-    //   .data(function(d){ return d.values}) 
-    //   .enter()
-    //   .append("circle")
-    //   .attr("r", circleRadius)
-    //   .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
-    //   .attr("data-job", function(dd){ return dd.jobTitle })
-    //   .attr("cx", function(dd){ return dd.X })
-    //   .attr("cy", function(dd){return dd.Y })
-    //   .style("fill", function(dd){ return "url(#image-"+ dd.id.split(" ").join("-").toLowerCase() +")"} )
-    //   .attr("class",function(dd){ return "gv-graph-photo-circle "+dd.changeClass});
-    
+        // .curve(d3.curveStepAfter);    
 
     var bg = g.selectAll(".chart-background")
     .data(tickLabelsY)
@@ -152,7 +130,38 @@ function drawChart(dataIn){
       .attr("width", embedWidth)
       .attr("height", dataIn.plotUnitJob)
       .attr("x",0 - margin.left)
-      .attr("y", function(d,i) { return (i*(dataIn.plotUnitJob))-(margin.top) });
+      .attr("y", function(d,i) { return i*(dataIn.plotUnitJob) });
+//add lanes
+  g.append("g")
+      .attr("class", "axis axis--y cabinet cameron")
+      .attr("transform", "translate(" + x(0) + ",0)")   
+      .call(d3.axisLeft(y))
+    .append("text")
+      .attr("y", -12)
+      .attr("x", 6)
+      .style("text-anchor", "start")
+      .text("Cameron");
+
+  g.append("g")
+      .attr("class", "axis axis--y cabinet")
+      .attr("transform", "translate(" + lanes[1] + ",0)")
+      .call(d3.axisLeft(y))
+    .append("text")
+      .attr("y", -12)
+      .attr("x", 6)
+      .style("text-anchor", "start")
+      .text("May Cabinet I");
+
+   g.append("g")
+      .attr("class", "axis axis--y  cabinet")
+      .attr("transform", "translate(" + (x(3))  + ",0)")
+      .call(d3.axisLeft(y))
+    .append("text")
+      .attr("y", -12)
+      .attr("x", 6)
+      .style("text-anchor", "start")
+      .text("May Cabinet II");
+//end add lanes
 
   svg.append("g")
       .attr("class", "axis axis--x")
@@ -161,9 +170,9 @@ function drawChart(dataIn){
 
   svg.append("g")
       .attr("class", "axis axis--y labels")
-      .attr("transform", "translate(3,0)")   
+      .attr("transform", "translate(3," + margin.top + ")")   
       .call(d3.axisLeft(y).ticks(tickLabelsY.length)
-      .tickFormat(function(d,i){ return tickLabelsY[i] }))
+      .tickFormat(function(d,i){ return tickLabelsY[i].Title }))
       .selectAll(".tick")
       .attr("y", 6)
       .attr("x", 6)
@@ -175,9 +184,9 @@ function drawChart(dataIn){
 
   svg.append("g")
       .attr("class", "axis axis--y labels right-side")
-      .attr("transform", "translate("+(embedWidth-margin.left)+",0)")   
+      .attr("transform", "translate("+(embedWidth-margin.left-6)+"," + margin.top + ")")   
       .call(d3.axisLeft(y).ticks(tickLabelsY.length)
-      .tickFormat(function(d,i){ return tickLabelsY[i] }))
+      .tickFormat(function(d,i){ return tickLabelsY[i].Title }))
       .selectAll(".tick")
       .attr("y", 6)
       .attr("x", 6)
@@ -187,58 +196,13 @@ function drawChart(dataIn){
       .style("text-anchor", "start")
       .call(wrap, textWrapVal)
 
-  // svg.append("g")
-  //     .attr("class", "axis axis--y blank")
-  //     .attr("transform", "translate("+(embedWidth/3)+",0)")   
-  //     .call(d3.axisLeft(y).ticks(tickLabelsY.length)
-  //     .tickFormat(function(d,i){ return tickLabelsY[i] }))
-  //     .selectAll(".tick")
-  //     .attr("y", 6)
-  //     .attr("x", 6)
-      
-
-
-
-  // g.append("g")
-  //     .attr("class", "axis axis--y cabinet")
-  //     .attr("transform", "translate(" + x(0.5) + ",0)")   
-  //     .call(d3.axisLeft(y))
-  //   .append("text")
-  //     .attr("transform", "rotate(-90)")
-  //     .attr("y", 0)
-  //     .attr("dy", "0.71em")
-  //     .attr("fill", "#000")
-  //     .text("Cameron");
-
-  // g.append("g")
-  //     .attr("class", "axis axis--y cabinet")
-  //     .attr("transform", "translate(" + x(2.5) + ",0)")
-  //     .call(d3.axisLeft(y))
-  //   .append("text")
-  //     .attr("transform", "rotate(-90)")
-  //     .attr("y", 6)
-  //     .attr("dy", "0.71em")
-  //     .attr("fill", "#000")
-  //     .text("May v1");
-
-  //  g.append("g")
-  //     .attr("class", "axis axis--y  cabinet")
-  //     .attr("transform", "translate(" + (x(4.5))  + ",0)")
-  //     .call(d3.axisLeft(y))
-  //   .append("text")
-  //     .attr("transform", "rotate(-90)")
-  //     .attr("y", 6)
-  //     .attr("dy", "0.71em")
-  //     .attr("fill", "#000")
-  //     .text("May v2");
-
-  var valsO;
+      // var Txtclass= d3.select(this).text().split(" ").join("-");
 
   var city = g.selectAll(".city")
-    .data(politicians)
-    .enter().append("g")
-      .attr("transform", "translate(" + x(0.5) + ",0)")
-      .attr("class", "city");
+      .data(politicians)
+        .enter().append("g")
+        .attr("transform", "translate(" + x(0.5) + ",0)")
+        .attr("class", "city");
 
   city.append("path")
       .attr("class", function(d){ return "gv-line "+d.changeClass})
@@ -248,60 +212,41 @@ function drawChart(dataIn){
   city.append("g").selectAll("circle")
       .data(function(d,i){ return d.values}) 
       .enter()
-      .append("circle")
-      .attr("r", circleRadius)
-      .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
-      .attr("data-display-name", function(dd){  return dd.id })
-      .attr("data-job", function(dd){ return dd.jobTitle })
-      .attr("cx", function(dd){ return dd.X })
-      .attr("cy", function(dd){ return dd.Y })
-      .style("fill", function(dd){ return "url(#image-"+ dd.id.split(" ").join("-").toLowerCase() +")"} )
-      .attr("class",function(dd){ return "gv-graph-photo-circle "+ dd.changeClass });    
+        .append("circle")
+        .attr("r", circleRadius)
+        .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
+        .attr("data-display-name", function(dd){  return dd.id })
+        .attr("data-job", function(dd){ return dd.jobTitle })
+        .attr("cx", function(dd){ return dd.X })
+        .attr("cy", function(dd){ return dd.Y })
+        .style("fill", function(dd){ return "url(#image-"+ dd.id.split(" ").join("-").toLowerCase() +")"} )
+        .attr("class",function(dd){ return "gv-graph-photo-circle "+ dd.changeClass });
 
+  city.append("g").selectAll("rect")
+      .data(function(d,i){ return d.values}) 
+      .enter()
+        .append("rect")        
+        .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
+        .attr("data-display-name", function(dd){  return dd.id })
+        .attr("data-job", function(dd){ return dd.jobTitle })
+        .attr("x", function(dd){ return dd.X - ((dd.id.length * 6)/2) })
+        .attr("y", function(dd){ return dd.Y  + (circleRadius/2) + nameLabelPad})
+        .attr("width", function(dd){ return (dd.id.length * 6) } )
+        .attr("height", 14)
+        .attr("class",function(dd){ return "gv-graph-name-label-bg "+ dd.changeClass });             
 
   city.each(function(d, i) {
-            d3.select(this).selectAll('text')
-                    .data(function(d){console.log(d); return d.values })
-                .enter()
-                    .append('text')
-                    .attr('class', 'nodeTxt')
-                    .attr("text-anchor","middle")
-                    .attr("x", function(d){ console.log(d); return (d.X) })
-                    .attr("y", function(d){ return (d.Y) })
-                    .text(function(dd) { return (d.id) })
-
+        d3.select(this).selectAll('text')
+            .data(function(d){return d.values })
+        .enter()
+            .append('text')
+            .attr('class', 'name-txt')
+            .attr("text-anchor","middle")
+            .attr("x", function(d){ return d.X })
+            .attr("y", function(d){ return (d.Y + circleRadius + nameLabelPad) })
+            .text(function(dd) { return (d.id.split(" ")[1]) })
         });    
-  // forEach(dd)    
-  // city.append("text")
-  //     // .data(function(dd,i){ console.log(dd); return d.values}) 
-  //     .attr("class", "nodetext")
-  //     .attr("dx", function(dd){ console.log(dd.values.length); return 20 })
-  //     .attr("dy", function(dd){ return (dd.values[0].Y+20) })
-  //     .text(function(d) { return "kno" });
-
-
-
-
-   //addLabels();
-     
-    
-    // .attr("text-anchor","middle")
-    //.attr("class","circle-label")
-    
-
-    // .attr("dx", 6)
-    // .text(function(d) { return d.id; });
-
-  // city.append("text")
-  //     .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
-  //     .attr("transform", function(d) { return "translate(" + x(d.value._X) + "," + y(d.value._Y) + ")"; })
-  //     .attr("x", 3)
-  //     .attr("dy", "0.35em")
-  //     .style("font", "10px sans-serif")
-  //     .text(function(d) { return d.id; });
-
 }
-
 
 
 function formatData(data) {
@@ -353,12 +298,23 @@ function formatData(data) {
 
     a.map((o, k) => {
         o.xPlot = o.cabinetRef * plotUnitCabinet;
-        o.yPlot = o.jobRef * plotUnitJob;
+        o.yPlot = (o.jobRef * plotUnitJob) + (circleRadius + 6);
         o.dataRef = o.Name.split(" ").join("-").toLowerCase();
-        if (!o.Photo){ o.Photo = silhouetteURL }
+        
+        if (!o.Photo){ 
+          o.Photo = silhouetteURL; 
+        }
           
         if(k < 27){
-          tickLabelsY.push(o.Title)
+          var newObj = { };
+          newObj.Title = o.Title;
+          newObj.Highlight = "no-highlight";
+          
+          if (o.Categ == "Great office of the state"){ 
+            newObj.Highlight = "highlight" ;
+          } 
+
+          tickLabelsY.push(newObj);
         }
     })
 
@@ -386,7 +342,6 @@ function formatData(data) {
     let tmp = [];
     politicians.map((o) => {
      var tempJob = o.objArr[0].Title;
-
           o.objArr.map((item) => {
             o.jobChange = false;
               if(item.Title != tempJob){
@@ -401,11 +356,12 @@ function formatData(data) {
 
     })
     politicians = tmp;
-   let ministries = groupBy(a, 'jobRef');
-    ministries = sortByKeys(ministries);
-    ministries.map((o) => {
-      o.jobTitle = o.objArr[0].Title;  
-    })
+
+    let ministries = groupBy(a, 'jobRef');
+        ministries = sortByKeys(ministries);
+        ministries.map((o) => {
+            o.jobTitle = o.objArr[0].Title;  
+      })
     
     newObj.tickLabelsY = tickLabelsY;
     newObj.flatArr = a;
@@ -419,9 +375,7 @@ function formatData(data) {
     newObj.plotUnitJob = plotUnitJob;
 
     return newObj;
-
 }
-
 
 function groupBy(xs, key) {
   return xs.reduce(function(rv, x) {
@@ -429,7 +383,6 @@ function groupBy(xs, key) {
     return rv;
   }, {});
 }
-
 
 function sortByKeys(obj) {
     let keys = Object.keys(obj), i, len = keys.length;
@@ -449,7 +402,9 @@ function sortByKeys(obj) {
 }
 
 function wrap(text, width) {
+
   text.each(function() {
+   
     var text = d3.select(this),
         words = text.text().split(/\s+/).reverse(),
         word,
@@ -460,6 +415,7 @@ function wrap(text, width) {
         dy = parseFloat(text.attr("dy")),
         tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
     while (word = words.pop()) {
+
       line.push(word);
       tspan.text(line.join(" "));
       if (tspan.node().getComputedTextLength() > width) {

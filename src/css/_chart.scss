@@ -1,15 +1,15 @@
 .gv-chart{
   position:relative;
-  height:1200px;
+  height:1500px;
   width:100%;
   background-color: #FFF;
 
   @include mq(mobileLandscape){
-    height: 1400px
+    height: 1800px
   }
 
    @include mq(tablet){
-    height: 1600px
+    height: 1740px
   }
 
   svg{
@@ -25,6 +25,19 @@
       font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
     }
   }
+
+  .name-txt{
+    font-size: 10px;
+    line-height: 12px;
+    font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+    fill: rgba($neutral-2,0.6);
+
+     @include mq(mobileLandscape){
+        font-size: 12px;
+        line-height: 14px;
+        
+    }
+  }
   }
 }
 
@@ -34,8 +47,6 @@
 
 .axis--y{
   text{
-
-    
   }
   &.labels{
 
@@ -51,6 +62,20 @@
     }
 
     .tick{
+      text{
+        @include mq(mobileLandscape){
+          font-family: "Guardian Text Egyptian Web",Georgia,serif;
+          font-size: 14px;
+          line-height: 18px;
+          fill:$neutral-2;
+        }
+
+        &.highlight{
+          font-weight: 700;
+          fill:$neutral-1;
+        }
+      }
+
       line{
          display:none;
       }
@@ -58,7 +83,6 @@
   }
 
   &.blank{
-
     .tick{
       display:none;
     }
@@ -67,6 +91,14 @@
   &.cabinet{
     .tick{
       display:none;
+    }
+    .domain{
+        stroke:#FFF;
+      }
+    &.cameron{
+      .domain{
+        display:none;
+      }
     }
   }
 }
@@ -91,11 +123,28 @@
   }
 }
 
+.gv-graph-name-label-bg{
+   fill: none;
+
+   @include mq(mobileLandscape){
+        fill: none;
+    }
+  &.change{
+    fill: none;
+
+    @include mq(mobileLandscape){
+        fill: none;
+    }
+  }
+}
+
+
+
 .background-rect{
   fill:#FFF;
   &.even{
 
-    fill:rgba($gv-accent,0.1);
+    fill:rgba($gv-no-accent,0.1);
    
       @include mq(mobileLandscape){
 

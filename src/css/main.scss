@@ -2,6 +2,8 @@
 @import "fonts";
 $gv-accent: #4bc6df;
 $gv-no-accent: #63717a;
+$neutral-1: #333333; 
+$neutral-2: #767676;
 $neutral-3:#bdbdbd;
 $neutral-6: #f6f6f6;
 // Uncomment for embeds
@@ -10,6 +12,10 @@ $neutral-6: #f6f6f6;
 
 // Uncomment for full screen (including immersive article main media)
 //@import "fullscreen";
+
+body{
+  background:#FFF;
+}
 
 .element-atom,
 .interactive-atom {
@@ -29,5 +35,9 @@ $neutral-6: #f6f6f6;
       width:30;
       height:30;
     }
+}
+
+.gv-chart-header{
+  background:#FFF;
 }
 
