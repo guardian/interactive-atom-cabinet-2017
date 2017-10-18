@@ -1,16 +1,43 @@
 import xr from 'xr'
 import Handlebars from 'handlebars/dist/handlebars'
-import * as d3 from "d3"
+//import * as d3 from "d3"
 import svgPicTemplate from '../templates/svgPic.html'
+
+import {
+    select, 
+    selectAll
+} from 'd3-selection';
+
+import {
+    line,
+    rect,
+    circle,
+    curveBasis,
+    curveCardinal,
+    curveStepAfter,
+    curveStep
+} from 'd3-shape';
+
+import {
+  path
+} from 'd3-path';
+
+import {
+  scaleLinear
+} from 'd3-scale';
+
+import {
+  axisTop,
+  axisRight,
+  axisBottom,
+  axisLeft
+} from 'd3-axis';
+
+var greatOffices = ["Prime minister","Chancellor","Foreign","Home"];
 
 const silhouetteURL = 'https://media.guim.co.uk/e989b6d5e1166a8cb5a3cd71be2189d97473aab3/15_16_170_170/170.jpg';
 
-
-// import {scaleOrdinal} from "d3-scale";
-// import {line} from "d3-line"
-// import {select} from "d3-select";    
-
-var containerDiv = d3.select(".gv-chart");
+var containerDiv = select(".gv-chart");
 
 //var dimensionsDiv = document.querySelector(".gv-chart");
 var embedWidth = containerDiv.node().getBoundingClientRect().width;
@@ -19,25 +46,24 @@ var width = embedWidth
 var height = embedHeight;
 var margin, circleRadius, textWrapVal, nameLabelPad, lanes;
 
-
 var plotBgH = 0;
 
  if(width <= 380){
       circleRadius = 15;
       nameLabelPad = 12;
       lanes = [ 0, 72, 144 ];
-      margin = {top: 24, right: 0, bottom: 40, left: 80};
+      margin = {top: 40, right: 0, bottom: 20, left: 80};
       textWrapVal = 70;
     }else if(width <= 620){
-      circleRadius = 20;
-      nameLabelPad = 13;
+      circleRadius = 18;
+      nameLabelPad = 12;
       lanes = [ 0, 96, 192 ];
-      margin = {top: 60, right: 120, bottom: 50, left: 140};
+      margin = {top: 80, right: 120, bottom: 20, left: 140};
       textWrapVal = 100;
     }else{
       circleRadius = 22;
       lanes = [ 0, 96, 192 ];
-      margin = {top: 30, right: 80, bottom: 50, left: 80};
+      margin = {top: 80, right: 80, bottom: 20, left: 80};
       textWrapVal = 100;
     }
 
@@ -85,18 +111,14 @@ function addSvgBackgrounds(d){
 }
 
 function drawChart(dataIn){
-    var x = d3.scaleLinear().range([0, width]);
-    var y = d3.scaleLinear().range([height, 0]);
-    var z = d3.scaleOrdinal(d3.schemeCategory10);
-
-    var svg = containerDiv.append("svg").attr("width",  embedWidth+"px").attr("height", embedHeight+margin.top+margin.bottom +"px"),
-    g = svg.append("g").attr("height",height).attr("width",width).attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var svg = containerDiv.append("svg").attr("width",  embedWidth+"px").attr("height", height+margin.top+margin.bottom +"px"),
+    g = svg.append("g").attr("height", height).attr("width",width).attr("transform", "translate(" + margin.left + "," + (margin.top-margin.bottom) + ")");
+    var x = scaleLinear().range([0, width]);
+    var y = scaleLinear().range([height - (margin.top+margin.bottom), 0]); 
 
     x.domain([0, (dataIn.max_x + 2)]);
 
-    y.domain([0, dataIn.max_y]);
-
-    z.domain(dataIn.ministries.map(function(c) {  return Number(c.sortOn); }));
+    y.domain([0, dataIn.max_y ]);
 
     var tickLabelsY = dataIn.tickLabelsY.reverse();
 
@@ -114,10 +136,10 @@ function drawChart(dataIn){
     });
 
 
-    var lineFunction = d3.line()
+    var lineFunction = line()
         .x(function(d) { return d.X; })
         .y(function(d) { return d.Y; })
-        // .curve(d3.curveStepAfter);    
+        //.curve(curveStep);    
 
     var bg = g.selectAll(".chart-background")
     .data(tickLabelsY)
@@ -134,44 +156,44 @@ function drawChart(dataIn){
 //add lanes
   g.append("g")
       .attr("class", "axis axis--y cabinet cameron")
-      .attr("transform", "translate(" + x(0) + ",0)")   
-      .call(d3.axisLeft(y))
+      .attr("transform", "translate(" + -22 + ",0)")   
+      .call(axisLeft(y))
     .append("text")
-      .attr("y", -12)
+      .attr("y", -9)
       .attr("x", 6)
       .style("text-anchor", "start")
-      .text("Cameron");
+      .text("2015");
 
   g.append("g")
       .attr("class", "axis axis--y cabinet")
       .attr("transform", "translate(" + lanes[1] + ",0)")
-      .call(d3.axisLeft(y))
+      .call(axisLeft(y))
     .append("text")
-      .attr("y", -12)
+      .attr("y", -9)
       .attr("x", 6)
       .style("text-anchor", "start")
-      .text("May Cabinet I");
+      .text("2016");
 
    g.append("g")
       .attr("class", "axis axis--y  cabinet")
       .attr("transform", "translate(" + (x(3))  + ",0)")
-      .call(d3.axisLeft(y))
+      .call(axisLeft(y))
     .append("text")
-      .attr("y", -12)
+      .attr("y", -9)
       .attr("x", 6)
       .style("text-anchor", "start")
-      .text("May Cabinet II");
+      .text("2017");
 //end add lanes
 
   svg.append("g")
       .attr("class", "axis axis--x")
       .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+      .call(axisBottom(x));
 
   svg.append("g")
       .attr("class", "axis axis--y labels")
-      .attr("transform", "translate(3," + margin.top + ")")   
-      .call(d3.axisLeft(y).ticks(tickLabelsY.length)
+      .attr("transform", "translate(3," + (margin.top-margin.bottom) + ")")   
+      .call(axisLeft(y).ticks(tickLabelsY.length)
       .tickFormat(function(d,i){ return tickLabelsY[i].Title }))
       .selectAll(".tick")
       .attr("y", 6)
@@ -184,8 +206,8 @@ function drawChart(dataIn){
 
   svg.append("g")
       .attr("class", "axis axis--y labels right-side")
-      .attr("transform", "translate("+(embedWidth-margin.left-6)+"," + margin.top + ")")   
-      .call(d3.axisLeft(y).ticks(tickLabelsY.length)
+      .attr("transform", "translate("+(embedWidth-margin.left-6)+"," + (margin.top-margin.bottom) + ")")   
+      .call(axisLeft(y).ticks(tickLabelsY.length)
       .tickFormat(function(d,i){ return tickLabelsY[i].Title }))
       .selectAll(".tick")
       .attr("y", 6)
@@ -196,7 +218,7 @@ function drawChart(dataIn){
       .style("text-anchor", "start")
       .call(wrap, textWrapVal)
 
-      // var Txtclass= d3.select(this).text().split(" ").join("-");
+      // var Txtclass= select(this).text().split(" ").join("-");
 
   var city = g.selectAll(".city")
       .data(politicians)
@@ -222,21 +244,21 @@ function drawChart(dataIn){
         .style("fill", function(dd){ return "url(#image-"+ dd.id.split(" ").join("-").toLowerCase() +")"} )
         .attr("class",function(dd){ return "gv-graph-photo-circle "+ dd.changeClass });
 
-  city.append("g").selectAll("rect")
-      .data(function(d,i){ return d.values}) 
-      .enter()
-        .append("rect")        
-        .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
-        .attr("data-display-name", function(dd){  return dd.id })
-        .attr("data-job", function(dd){ return dd.jobTitle })
-        .attr("x", function(dd){ return dd.X - ((dd.id.length * 6)/2) })
-        .attr("y", function(dd){ return dd.Y  + (circleRadius/2) + nameLabelPad})
-        .attr("width", function(dd){ return (dd.id.length * 6) } )
-        .attr("height", 14)
-        .attr("class",function(dd){ return "gv-graph-name-label-bg "+ dd.changeClass });             
+  // city.append("g").selectAll("rect")
+  //     .data(function(d,i){ return d.values}) 
+  //     .enter()
+  //       .append("rect")        
+  //       .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
+  //       .attr("data-display-name", function(dd){  return dd.id })
+  //       .attr("data-job", function(dd){ return dd.jobTitle })
+  //       .attr("x", function(dd){ return dd.X - ((dd.id.length * 6)/2) })
+  //       .attr("y", function(dd){ return dd.Y  + (circleRadius/2) + nameLabelPad})
+  //       .attr("width", function(dd){ return (dd.id.length * 6) } )
+  //       .attr("height", 14)
+  //       .attr("class",function(dd){ return "gv-graph-name-label-bg "+ dd.changeClass });             
 
   city.each(function(d, i) {
-        d3.select(this).selectAll('text')
+        select(this).selectAll('text')
             .data(function(d){return d.values })
         .enter()
             .append('text')
@@ -245,7 +267,27 @@ function drawChart(dataIn){
             .attr("x", function(d){ return d.X })
             .attr("y", function(d){ return (d.Y + circleRadius + nameLabelPad) })
             .text(function(dd) { return (d.id.split(" ")[1]) })
-        });    
+        }); 
+
+ let labelsArr = document.getElementsByTagName("tspan");  
+
+ console.log(labelsArr.length)
+
+ for (var i = 0; i < labelsArr.length; i++){
+    var s = labelsArr[i].innerHTML;
+
+    greatOffices.map((item) => {
+      if(s == item){
+        labelsArr[i].classList.add("highlight")
+      }
+    })
+ }
+ // labelsArr.map((o) => {
+ //          console.log(o)
+ //        })
+ // labelsArr.map((label) =>{
+ //  console.log(label)
+ // })      
 }
 
 
@@ -293,7 +335,7 @@ function formatData(data) {
 
     var maxPlotJob = Math.max(...a.map(o => o.jobRef));
     var maxPlotCabinet = Math.max(...a.map(o => o.cabinetRef)) +1;
-    var plotUnitJob = height / maxPlotJob;
+    var plotUnitJob = (height-(margin.top+margin.bottom)) / maxPlotJob;
     var plotUnitCabinet = width / maxPlotCabinet;
 
     a.map((o, k) => {
@@ -405,7 +447,7 @@ function wrap(text, width) {
 
   text.each(function() {
    
-    var text = d3.select(this),
+    var text = select(this),
         words = text.text().split(/\s+/).reverse(),
         word,
         line = [],
