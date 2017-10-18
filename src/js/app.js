@@ -15,7 +15,8 @@ import {
     curveBasis,
     curveCardinal,
     curveStepAfter,
-    curveStep
+    curveStep,
+    linkHorizontal
 } from 'd3-shape';
 
 import {
@@ -32,6 +33,8 @@ import {
   axisBottom,
   axisLeft
 } from 'd3-axis';
+
+import roundStep from './libs/roundStep';
 
 var greatOffices = ["Prime minister","Chancellor","Foreign","Home"];
 
@@ -51,13 +54,13 @@ var plotBgH = 0;
  if(width <= 380){
       circleRadius = 15;
       nameLabelPad = 12;
-      lanes = [ 0, 72, 144 ];
-      margin = {top: 40, right: 0, bottom: 20, left: 80};
+      margin = {top: 40, right: 0, bottom: 20, left: 70};
+      lanes = [ 0, ((embedWidth-margin.left)/3), (((embedWidth-margin.left)/3)*2) ];
       textWrapVal = 70;
     }else if(width <= 620){
       circleRadius = 18;
       nameLabelPad = 12;
-      lanes = [ 0, 96, 192 ];
+      lanes = [ 0, 103, 206 ];
       margin = {top: 80, right: 120, bottom: 20, left: 140};
       textWrapVal = 100;
     }else{
@@ -115,10 +118,13 @@ function drawChart(dataIn){
     g = svg.append("g").attr("height", height).attr("width",width).attr("transform", "translate(" + margin.left + "," + (margin.top-margin.bottom) + ")");
     var x = scaleLinear().range([0, width]);
     var y = scaleLinear().range([height - (margin.top+margin.bottom), 0]); 
+    var yH = scaleLinear().range([embedHeight, 0  ]);
 
     x.domain([0, (dataIn.max_x + 2)]);
 
     y.domain([0, dataIn.max_y ]);
+
+    yH.domain([0, dataIn.max_y + dataIn.plotUnitJob ]);
 
     var tickLabelsY = dataIn.tickLabelsY.reverse();
 
@@ -135,12 +141,6 @@ function drawChart(dataIn){
       };
     });
 
-
-    var lineFunction = line()
-        .x(function(d) { return d.X; })
-        .y(function(d) { return d.Y; })
-        //.curve(curveStep);    
-
     var bg = g.selectAll(".chart-background")
     .data(tickLabelsY)
     .enter().append("g")
@@ -156,8 +156,8 @@ function drawChart(dataIn){
 //add lanes
   g.append("g")
       .attr("class", "axis axis--y cabinet cameron")
-      .attr("transform", "translate(" + -22 + ",0)")   
-      .call(axisLeft(y))
+      .attr("transform", "translate(" + lanes[0] + ",0)")   
+      .call(axisLeft(yH))
     .append("text")
       .attr("y", -9)
       .attr("x", 6)
@@ -167,7 +167,7 @@ function drawChart(dataIn){
   g.append("g")
       .attr("class", "axis axis--y cabinet")
       .attr("transform", "translate(" + lanes[1] + ",0)")
-      .call(axisLeft(y))
+      .call(axisLeft(yH))
     .append("text")
       .attr("y", -9)
       .attr("x", 6)
@@ -176,8 +176,8 @@ function drawChart(dataIn){
 
    g.append("g")
       .attr("class", "axis axis--y  cabinet")
-      .attr("transform", "translate(" + (x(3))  + ",0)")
-      .call(axisLeft(y))
+      .attr("transform", "translate(" + lanes[2]  + ",0)")
+      .call(axisLeft(yH))
     .append("text")
       .attr("y", -9)
       .attr("x", 6)
@@ -220,6 +220,15 @@ function drawChart(dataIn){
 
       // var Txtclass= select(this).text().split(" ").join("-");
 
+  var linker = linkHorizontal()
+        .x(function(d) { console.log(d); return d.X; })
+        .y(function(d) { return d.Y; });
+
+  var lineFunction = line()
+        .x(function(d) { return d.X; })
+        .y(function(d) { return d.Y; })
+        //.curve(roundStep);        
+
   var city = g.selectAll(".city")
       .data(politicians)
         .enter().append("g")
@@ -229,7 +238,7 @@ function drawChart(dataIn){
   city.append("path")
       .attr("class", function(d){ return "gv-line "+d.changeClass})
       .attr("data-name", function(d) { return d.jobTitle.split(" ").join("-").toLowerCase() })
-      .attr("d", function(d) { return lineFunction(d.values) });
+      .attr("d", function(d) {  console.log(lineFunction(d.values)); return lineFunction(d.values) });
 
   city.append("g").selectAll("circle")
       .data(function(d,i){ return d.values}) 

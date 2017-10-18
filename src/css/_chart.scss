@@ -89,6 +89,13 @@
   }
 
   &.cabinet{
+    .domain{
+        display:none;
+        @include mq(mobileLandscape){
+            display:block;
+        }
+      }
+
     .tick{
       display:none;
     }
