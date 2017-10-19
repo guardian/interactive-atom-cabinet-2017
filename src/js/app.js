@@ -42,32 +42,66 @@ const silhouetteURL = 'https://media.guim.co.uk/e989b6d5e1166a8cb5a3cd71be2189d9
 
 var containerDiv = select(".gv-chart");
 
+//article nav
+var breakfastSections;
+
 //var dimensionsDiv = document.querySelector(".gv-chart");
 var embedWidth = containerDiv.node().getBoundingClientRect().width;
 var embedHeight = containerDiv.node().getBoundingClientRect().height;
 var width = embedWidth
 var height = embedHeight;
-var margin, circleRadius, textWrapVal, nameLabelPad, lanes;
+var margin, circleRadius, textWrapVal, nameLabelPad, lanes, xShim, yTickTextPad, laneXPad;
 
 var plotBgH = 0;
-
- if(width <= 380){
+    if(width == 300){
       circleRadius = 15;
       nameLabelPad = 12;
       margin = {top: 40, right: 0, bottom: 20, left: 70};
       lanes = [ 0, ((embedWidth-margin.left)/3), (((embedWidth-margin.left)/3)*2) ];
       textWrapVal = 70;
-    }else if(width <= 620){
-      circleRadius = 18;
+      xShim = 0.5;
+      yTickTextPad = 9;
+      laneXPad = 24;
+    }
+    else if(width > 300 && width < 620){
+      circleRadius = 15;
       nameLabelPad = 12;
-      lanes = [ 0, 103, 206 ];
-      margin = {top: 80, right: 120, bottom: 20, left: 140};
+      margin = {top: 40, right: 0, bottom: 20, left: 100};
+      lanes = [ 0, ((embedWidth-margin.left)/3), (((embedWidth-margin.left)/3)*2) ];
+      textWrapVal = 70;
+      xShim = 0.5;
+      yTickTextPad = 9;
+      laneXPad = 27;
+    }
+    else if(width == 620){
+      circleRadius = 18;
+      nameLabelPad = 14;
+      lanes = [ -27, 110, 250 ];
+      margin = {top: 80, right: 155, bottom: 20, left: 50};
       textWrapVal = 100;
-    }else{
-      circleRadius = 22;
-      lanes = [ 0, 96, 192 ];
-      margin = {top: 80, right: 80, bottom: 20, left: 80};
-      textWrapVal = 100;
+      xShim = 0.5;
+      yTickTextPad = 12;
+      laneXPad = 69;
+    }
+    else if(width == 780){
+      circleRadius = 26;
+      nameLabelPad = 14;
+      lanes = [ 0, 192, 388 ];
+      margin = {top: 80, right: 195, bottom: 20, left: 0};
+      textWrapVal = 140;
+      xShim = 0.82;
+      yTickTextPad = 12;
+      laneXPad = 96;
+    }
+    else if(width == 860){
+      circleRadius = 26;
+      nameLabelPad = 14;
+      lanes = [ 0, 214, 430 ];
+      margin = {top: 80, right: 210, bottom: 20, left: 0};
+      textWrapVal = 200;
+      xShim = 0.82;
+      yTickTextPad = 12;
+      laneXPad = 108;
     }
 
     width = width - margin.left - margin.right,
@@ -76,11 +110,15 @@ var plotBgH = 0;
 xr.get('https://interactive.guim.co.uk/docsdata-test/1VXBeHCsgJB-SUXjgIlfZk2W8qdZicCw7vs4JWd4lkJY.json').then((resp) => {
     let d = resp.data.sheets;
     var newObj = {};
+    
     newObj = formatData(d.Sheet1);
+
+    newObj.copyData = d.Sheet2;
 
     buildView(newObj);
 
 });
+
 
 function buildView(newObj){
 
@@ -88,8 +126,9 @@ function buildView(newObj){
 
   document.querySelector(".gv-img-holder").innerHTML = svgHTML;
 
-  drawChart(newObj);  
+  drawChart(newObj); 
 }
+
 
 function addSvgBackgrounds(d){
     var svgObj = {};
@@ -135,8 +174,42 @@ function drawChart(dataIn){
         id: obj.sortOn,
         jobTitle: obj.objArr[0].Name,
         changeClass: obj.changeClass, 
-        values: obj.objArr.map(function(d) {
-          return { X: d.xPlot, Y: d.yPlot, changeClass: obj.changeClass, id: obj.sortOn, jobTitle: obj.objArr[0].Title };
+        values: obj.objArr.map(function(d,k) {
+          var tempOb;
+          var sourceVar = [d.xPlot,d.yPlot]
+
+          if(obj.objArr[k+1]){ var targetVar = [obj.objArr[k+1].xPlot, obj.objArr[k+1].yPlot]; tempOb = { X: d.xPlot, Y: d.yPlot, changeClass: obj.changeClass, id: obj.sortOn, jobTitle: obj.objArr[0].Title, source: {x: sourceVar[0], y: sourceVar[1]}, target: {x:targetVar[0], y:targetVar[1] }  } }
+
+          if(!obj.objArr[k+1]){ tempOb = { X: d.xPlot, Y: d.yPlot, changeClass: obj.changeClass, id: obj.sortOn, jobTitle: obj.objArr[0].Title, source: {x: sourceVar[0], y: sourceVar[1]} } }
+          
+          return tempOb;
+        }),
+
+        pathData: obj.objArr.map(function(d,k) {
+          var pathArr = []
+          var tempOb = {};
+          var sourceVar = [d.xPlot, d.yPlot]
+
+          if(obj.objArr[k+1]){ 
+              var targetVar = [obj.objArr[k+1].xPlot, obj.objArr[k+1].yPlot]; 
+
+              tempOb.source = { }, 
+              tempOb.source.x = sourceVar[0];
+              tempOb.source.y = sourceVar[1]; 
+
+              tempOb.target = { }, 
+              tempOb.target.x = targetVar[0];
+              tempOb.target.y = targetVar[1]; 
+          }
+
+          if(!obj.objArr[k+1]){ 
+              tempOb.source = { }, 
+              tempOb.source.x = sourceVar[0];
+              tempOb.source.y = sourceVar[1]; 
+          }
+          pathArr.push(tempOb);
+          
+          return pathArr;
         })
       };
     });
@@ -151,7 +224,7 @@ function drawChart(dataIn){
       .attr("class", function (d,i) { var className; i % 2 == 0 ? className ="background-rect even" :  className ="background-rect odd" ;  return className})
       .attr("width", embedWidth)
       .attr("height", dataIn.plotUnitJob)
-      .attr("x",0 - margin.left)
+      .attr("x", 0 - margin.left)
       .attr("y", function(d,i) { return i*(dataIn.plotUnitJob) });
 //add lanes
   g.append("g")
@@ -160,9 +233,17 @@ function drawChart(dataIn){
       .call(axisLeft(yH))
     .append("text")
       .attr("y", -9)
-      .attr("x", 6)
-      .style("text-anchor", "start")
-      .text("2015");
+      .attr("x", laneXPad)
+      .style("text-anchor", "middle")
+      .text(function(){
+            var s = " ";
+            dataIn.copyData.map((o) =>{
+              if(o.TextClass=="col-one-head"){
+                s = o.copy
+              }
+            })
+            return s;
+      });
 
   g.append("g")
       .attr("class", "axis axis--y cabinet")
@@ -170,9 +251,17 @@ function drawChart(dataIn){
       .call(axisLeft(yH))
     .append("text")
       .attr("y", -9)
-      .attr("x", 6)
-      .style("text-anchor", "start")
-      .text("2016");
+      .attr("x", laneXPad)
+      .style("text-anchor", "middle")
+      .text(function(){
+            var s = " ";
+            dataIn.copyData.map((o) =>{
+              if(o.TextClass=="col-two-head"){
+                s = o.copy
+              }
+            })
+            return s;
+        });
 
    g.append("g")
       .attr("class", "axis axis--y  cabinet")
@@ -180,9 +269,17 @@ function drawChart(dataIn){
       .call(axisLeft(yH))
     .append("text")
       .attr("y", -9)
-      .attr("x", 6)
-      .style("text-anchor", "start")
-      .text("2017");
+      .attr("x", laneXPad)
+      .style("text-anchor", "middle")
+      .text(function(){
+            var s = " ";
+            dataIn.copyData.map((o) =>{
+              if(o.TextClass=="col-three-head"){
+                s = o.copy
+              }
+            })
+            return s;
+        });
 //end add lanes
 
   svg.append("g")
@@ -199,46 +296,80 @@ function drawChart(dataIn){
       .attr("y", 6)
       .attr("x", 6)
       .selectAll(".tick text")
-      .attr("y", 9)
+      .attr("y", yTickTextPad)
       .attr("x", 6)
       .style("text-anchor", "start")
       .call(wrap, textWrapVal)    
 
   svg.append("g")
       .attr("class", "axis axis--y labels right-side")
-      .attr("transform", "translate("+(embedWidth-margin.left-6)+"," + (margin.top-margin.bottom) + ")")   
+      .attr("transform", "translate("+(embedWidth-margin.right-6)+"," + (margin.top-margin.bottom) + ")")   
       .call(axisLeft(y).ticks(tickLabelsY.length)
       .tickFormat(function(d,i){ return tickLabelsY[i].Title }))
       .selectAll(".tick")
       .attr("y", 6)
       .attr("x", 6)
       .selectAll(".tick text")
-      .attr("y", 9)
+      .attr("y", yTickTextPad)
       .attr("x", 6)
       .style("text-anchor", "start")
       .call(wrap, textWrapVal)
 
       // var Txtclass= select(this).text().split(" ").join("-");
 
-  var linker = linkHorizontal()
-        .x(function(d) { console.log(d); return d.X; })
-        .y(function(d) { return d.Y; });
+  var link = linkHorizontal()
+            .x(function(d) {
+                return d.x;
+            })
+            .y(function(d) {
+                return d.y;
+          });
 
   var lineFunction = line()
         .x(function(d) { return d.X; })
         .y(function(d) { return d.Y; })
-        //.curve(roundStep);        
+        //.curve(roundStep);   
 
   var city = g.selectAll(".city")
       .data(politicians)
         .enter().append("g")
-        .attr("transform", "translate(" + x(0.5) + ",0)")
+        .attr("transform", "translate(" + x(xShim) + ",0)")
         .attr("class", "city");
 
   city.append("path")
       .attr("class", function(d){ return "gv-line "+d.changeClass})
       .attr("data-name", function(d) { return d.jobTitle.split(" ").join("-").toLowerCase() })
-      .attr("d", function(d) {  console.log(lineFunction(d.values)); return lineFunction(d.values) });
+     //  .attr("d", function(d) {  return link(d.pathData) });
+     .attr("d", function(d) {  
+     // console.log(link(d.pathData))
+      return lineFunction(d.values) 
+    });
+
+
+
+function diagonal(s, d) {
+
+    var tpath = `M${s.y} ${s.x}
+            C${(s.y + d.y) / 2} ${s.x},
+            ${(s.y + d.y) / 2} ${d.x},
+            ${d.y} ${d.x}`
+
+    return tpath
+} 
+
+// add curved lines -- not working
+//https://tutel.me/c/programming/questions/45641570/d3+v4+collapsible+tree+using+the+d3+link+generator
+  // city.append("path").selectAll("path")
+  //     .data(function(d,i){ return d.values}) 
+  //     .enter().append("path")
+  //       .attr("class", function(d){ return "gv-line "+d.changeClass})
+  //       .attr("data-name", function(d) { return d.jobTitle.split(" ").join("-").toLowerCase() })
+  //       .attr('d', function(dd){
+
+  //         var o = {x: dd.X, y: dd.Y}
+  //         return diagonal(o, o)
+
+  //     });
 
   city.append("g").selectAll("circle")
       .data(function(d,i){ return d.values}) 
@@ -252,7 +383,7 @@ function drawChart(dataIn){
         .attr("cy", function(dd){ return dd.Y })
         .style("fill", function(dd){ return "url(#image-"+ dd.id.split(" ").join("-").toLowerCase() +")"} )
         .attr("class",function(dd){ return "gv-graph-photo-circle "+ dd.changeClass });
-
+//add boxes behind names
   // city.append("g").selectAll("rect")
   //     .data(function(d,i){ return d.values}) 
   //     .enter()
@@ -276,7 +407,24 @@ function drawChart(dataIn){
             .attr("x", function(d){ return d.X })
             .attr("y", function(d){ return (d.Y + circleRadius + nameLabelPad) })
             .text(function(dd) { return (d.id.split(" ")[1]) })
-        }); 
+        });
+
+// add curved lines -- not working
+  // city.each(function(d, i) {
+  //   select(this).selectAll('path')
+  //     .data(function(d,i){ return d.values}) 
+  //     .enter()
+  //       .append("path")
+  //       .attr("class", function(d){ return "gv-line "+d.changeClass})
+  //       .attr("data-name", function(d) { return d.jobTitle.split(" ").join("-").toLowerCase() })
+  //       .attr('d', function(dd){
+
+  //         var o = {x: dd.X, y: dd.Y}
+  //         //return diagonal(o, o)
+  //         return lineFunction(dd)
+  //     }); 
+  //  });
+
 
  let labelsArr = document.getElementsByTagName("tspan");  
 

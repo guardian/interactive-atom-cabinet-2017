@@ -4,7 +4,7 @@ $gv-accent: #4bc6df;
 $gv-no-accent: #63717a;
 $neutral-1: #333333; 
 $neutral-2: #767676;
-$neutral-3:#bdbdbd;
+$neutral-3: #bdbdbd;
 $neutral-6: #f6f6f6;
 // Uncomment for embeds
 @import "embed";
@@ -32,17 +32,46 @@ body{
     }
 
     @include mq(tablet){
-      width:30;
-      height:30;
+      width:60;
+      height:60;
     }
 }
 
 .gv-chart-header{
   background:#FFF;
+    h1{
+    padding: 0 0 28px;
+    margin: 0;
+    font-family: 'Guardian Egyptian Web', Georgia, serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 22px;
+    color: $neutral-1;
+
+    @include mq(mobileLandscape){
+      padding: 0 0 3px;
+    }
+  }
+
 }
 
 .highlight{
   font-weight:500;
-  fill: $neutral-1;
+  fill: $neutral-2;
 }
+
+ .article-link {
+    color: #197CAA;
+    font-size: 12px;
+    padding: 0;
+    border-radius: 12px;
+    display: block;
+    line-height: 1em;
+    vertical-align: top;
+    text-decoration: none;
+    &:hover{
+      text-decoration: underline;
+    }
+}
+
 

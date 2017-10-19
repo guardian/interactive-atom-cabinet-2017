@@ -1,16 +1,17 @@
 .gv-chart{
   position:relative;
-  height:1500px;
+  height:1700px;
   width:100%;
   background-color: #FFF;
 
   @include mq(mobileLandscape){
-    height: 1800px
+    height: 1900px
   }
 
    @include mq(tablet){
-    height: 1740px
+    height: 2200px
   }
+
 
   svg{
     text{
@@ -19,11 +20,13 @@
     font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
     fill: rgb(118,118,118);
 
-    @include mq(tablet){
+    @include mq(mobileLandscape){
       font-size: 14px;
       line-height: 18px;
-      font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+      
     }
+
+    
   }
 
   .name-txt{
@@ -49,7 +52,10 @@
   text{
   }
   &.labels{
-
+      display:block;
+      @include mq(mobileLandscape){
+        display:none;
+      }
     &.right-side{
       display:none;
       @include mq(mobileLandscape){
@@ -70,9 +76,14 @@
           fill:$neutral-2;
         }
 
+        @include mq(tablet){
+          font-size: 16px;
+          line-height: 20px;
+        }
+
         &.highlight{
           font-weight: 700;
-          fill:$neutral-1;
+          fill:$neutral-2;
         }
       }
 
@@ -115,6 +126,13 @@
         font-weight:700;
         fill:$neutral-1;
       }
+      @include mq(mobileLandscape){
+        font-family: "Guardian Egyptian Web",Georgia,serif;
+        font-size: 16px;
+        line-height: 24px;
+        font-weight:700;
+        fill:$neutral-1;
+      }
     }
     
   }
@@ -123,7 +141,7 @@
 .gv-line {
   fill: none;
   stroke: $gv-no-accent;
-  stroke-width: 7px;
+  stroke-width: 5px;
   opacity: 0.85;
 
   &.change{
