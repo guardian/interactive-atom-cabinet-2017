@@ -336,6 +336,8 @@ function drawChart(dataIn){
         .attr("transform", "translate(" + x(xShim) + ",0)")
         .attr("class", "city");
 
+  appendPatterns(svg);      
+
   city.append("path")
       .attr("class", function(d){ return "gv-line "+d.changeClass})
       .attr("data-name", function(d) { return d.jobTitle.split(" ").join("-").toLowerCase() })
@@ -344,6 +346,71 @@ function drawChart(dataIn){
      // console.log(link(d.pathData))
       return lineFunction(d.values) 
     });
+
+  city.append("g").selectAll("circle")
+      .data(function(d,i){ return d.values}) 
+      .enter()
+        .append("circle")
+        .attr("r", circleRadius)
+        .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
+        .attr("data-display-name", function(dd){  return dd.id })
+        .attr("data-job", function(dd){ return dd.jobTitle })
+        .attr("cx", function(dd){ return dd.X })
+        .attr("cy", function(dd){ return dd.Y })
+        .style('fill', function(dd) {
+            if (dd.id) {
+                return `url(#pic-${cleanID(dd.id)}`;
+            }
+            return "#f6f6f6"
+        })
+
+        .attr("class",function(dd){ return "gv-graph-photo-circle "+ dd.changeClass });
+         
+
+  city.each(function(d, i) {
+        select(this).selectAll('text')
+            .data(function(d){return d.values })
+        .enter()
+            .append('text')
+            .attr('class', 'name-txt')
+            .attr("text-anchor","middle")
+            .attr("x", function(d){ return d.X })
+            .attr("y", function(d){ return (d.Y + circleRadius + nameLabelPad) })
+            .text(function(dd) { return (d.id.split(" ")[1]) })
+        });
+
+
+function cleanID(string) {
+    return string.toLowerCase().replace(/[^\w\s]/gi, '').replace(/ /g, "");
+}
+
+
+
+function appendPatterns(svg) {
+    dataIn.uniqueNames.forEach((pic) => {
+
+      console.log(pic.imgPath)
+
+        const pattern = svg.append("pattern")
+            .attr("id", "pic-" + cleanID(pic.dataRef))
+            .attr("x", "0%")
+            .attr("y", "0%")
+            .attr("patternContentUnits", "objectBoundingBox")
+            .attr("height", "1")
+            .attr("width", "1")
+            .attr("viewBox", "0 0 20 20")
+
+        pattern.append("image")
+            .attr("x", "0%")
+            .attr("y", "0%")
+            .attr("height", "20")
+            // .attr("preserveAspectRatio", "none")
+            .attr("width", "20")
+            .attr("xlink:href", pic.imgPath)
+    });
+
+
+}
 
 
 
@@ -356,6 +423,22 @@ function diagonal(s, d) {
 
     return tpath
 } 
+
+
+  //add boxes behind names
+  // city.append("g").selectAll("rect")
+  //     .data(function(d,i){ return d.values}) 
+  //     .enter()
+  //       .append("rect")        
+  //       .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
+  //       .attr("data-display-name", function(dd){  return dd.id })
+  //       .attr("data-job", function(dd){ return dd.jobTitle })
+  //       .attr("x", function(dd){ return dd.X - ((dd.id.length * 6)/2) })
+  //       .attr("y", function(dd){ return dd.Y  + (circleRadius/2) + nameLabelPad})
+  //       .attr("width", function(dd){ return (dd.id.length * 6) } )
+  //       .attr("height", 14)
+  //       .attr("class",function(dd){ return "gv-graph-name-label-bg "+ dd.changeClass }); 
+
 
 // add curved lines -- not working
 //https://tutel.me/c/programming/questions/45641570/d3+v4+collapsible+tree+using+the+d3+link+generator
@@ -371,43 +454,6 @@ function diagonal(s, d) {
 
   //     });
 
-  city.append("g").selectAll("circle")
-      .data(function(d,i){ return d.values}) 
-      .enter()
-        .append("circle")
-        .attr("r", circleRadius)
-        .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
-        .attr("data-display-name", function(dd){  return dd.id })
-        .attr("data-job", function(dd){ return dd.jobTitle })
-        .attr("cx", function(dd){ return dd.X })
-        .attr("cy", function(dd){ return dd.Y })
-        .style("fill", function(dd){ return "url(#image-"+ dd.id.split(" ").join("-").toLowerCase() +")"} )
-        .attr("class",function(dd){ return "gv-graph-photo-circle "+ dd.changeClass });
-//add boxes behind names
-  // city.append("g").selectAll("rect")
-  //     .data(function(d,i){ return d.values}) 
-  //     .enter()
-  //       .append("rect")        
-  //       .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
-  //       .attr("data-display-name", function(dd){  return dd.id })
-  //       .attr("data-job", function(dd){ return dd.jobTitle })
-  //       .attr("x", function(dd){ return dd.X - ((dd.id.length * 6)/2) })
-  //       .attr("y", function(dd){ return dd.Y  + (circleRadius/2) + nameLabelPad})
-  //       .attr("width", function(dd){ return (dd.id.length * 6) } )
-  //       .attr("height", 14)
-  //       .attr("class",function(dd){ return "gv-graph-name-label-bg "+ dd.changeClass });             
-
-  city.each(function(d, i) {
-        select(this).selectAll('text')
-            .data(function(d){return d.values })
-        .enter()
-            .append('text')
-            .attr('class', 'name-txt')
-            .attr("text-anchor","middle")
-            .attr("x", function(d){ return d.X })
-            .attr("y", function(d){ return (d.Y + circleRadius + nameLabelPad) })
-            .text(function(dd) { return (d.id.split(" ")[1]) })
-        });
 
 // add curved lines -- not working
   // city.each(function(d, i) {
