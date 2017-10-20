@@ -74,4 +74,40 @@ body{
     }
 }
 
+.gv-bubbles-overlay{
+  position: absolute;
+  top: 0;
+  left: 0;
+  background:rgba(255,255,255,0.5)
+}
+
+.gv-bubble-holder{
+  position:absolute;
+  width:100%;
+  height: 500px;
+  top: 0px;
+  left:0px;
+}
+
+.gv-bubble{
+  background-color:red;
+  position:absolute;
+  border-radius:300px;
+  background-repeat:no-repeat;
+  background-size:contain;
+  border: 3px solid $gv-no-accent;
+}
+
+.gv-bubble-label{
+    position:absolute;
+    height:15px;
+    width: 80px;
+    left: -10px;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: center;
+    font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+    fill: $neutral-3;
+}
+
 

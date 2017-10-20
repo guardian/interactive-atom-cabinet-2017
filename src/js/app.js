@@ -1,7 +1,7 @@
 import xr from 'xr'
 import Handlebars from 'handlebars/dist/handlebars'
 //import * as d3 from "d3"
-import svgPicTemplate from '../templates/svgPic.html'
+import bubbleTemplate from '../templates/bubble.html'
 
 import {
     select, 
@@ -122,9 +122,9 @@ xr.get('https://interactive.guim.co.uk/docsdata-test/1VXBeHCsgJB-SUXjgIlfZk2W8qd
 
 function buildView(newObj){
 
-  var svgHTML = addSvgBackgrounds(newObj);
+  // var svgHTML = addSvgBackgrounds(newObj);
 
-  document.querySelector(".gv-img-holder").innerHTML = svgHTML;
+  // document.querySelector(".gv-img-holder").innerHTML = svgHTML;
 
   drawChart(newObj); 
 }
@@ -154,6 +154,7 @@ function addSvgBackgrounds(d){
 
 function drawChart(dataIn){
     var svg = containerDiv.append("svg").attr("width",  embedWidth+"px").attr("height", height+margin.top+margin.bottom +"px"),
+    bubblesDiv = containerDiv.append("div").attr("class","gv-bubble-holder"),
     g = svg.append("g").attr("height", height).attr("width",width).attr("transform", "translate(" + margin.left + "," + (margin.top-margin.bottom) + ")");
     var x = scaleLinear().range([0, width]);
     var y = scaleLinear().range([height - (margin.top+margin.bottom), 0]); 
@@ -336,8 +337,6 @@ function drawChart(dataIn){
         .attr("transform", "translate(" + x(xShim) + ",0)")
         .attr("class", "city");
 
-  appendPatterns(svg);      
-
   city.append("path")
       .attr("class", function(d){ return "gv-line "+d.changeClass})
       .attr("data-name", function(d) { return d.jobTitle.split(" ").join("-").toLowerCase() })
@@ -347,70 +346,59 @@ function drawChart(dataIn){
       return lineFunction(d.values) 
     });
 
-  city.append("g").selectAll("circle")
-      .data(function(d,i){ return d.values}) 
-      .enter()
-        .append("circle")
-        .attr("r", circleRadius)
-        .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
-        .attr("data-display-name", function(dd){  return dd.id })
-        .attr("data-job", function(dd){ return dd.jobTitle })
-        .attr("cx", function(dd){ return dd.X })
-        .attr("cy", function(dd){ return dd.Y })
-        .style('fill', function(dd) {
-            if (dd.id) {
-                return `url(#pic-${cleanID(dd.id)}`;
-            }
-            return "#f6f6f6"
-        })
+  bubblesDiv.style("margin-left", margin.left+"px");
+  bubblesDiv.style("margin-top", margin.top-margin.bottom+"px");  
 
-        .attr("class",function(dd){ return "gv-graph-photo-circle "+ dd.changeClass });
+  var bubble = bubblesDiv.selectAll(".bubble")
+       .data(dataIn.flatArr)
+        .enter().append("div")
+          .attr("class", function(d){ console.log(d); return "gv-bubble "}) //+d.changeClass
+          .style("height", (circleRadius*2)+"px")
+          .style("width", (circleRadius*2)+"px")
+          .style("left", function(d){ return (d.xPlot+circleRadius) +"px"})
+          .style("top", function(d){ return d.yPlot-circleRadius +"px"})
+          .style("background-image", function(d){ return "url("+d.Photo +")" })
+        .append("div")
+          .attr("class", function(d){ console.log(d); return "gv-bubble-label"})
+          .attr("data-label",function(d){ return d.Name} )
+          .html(function(d){ return d.Name.split(" ")[1]} )
+          .style("top", function(d){ return (circleRadius*2.1) +"px"});
+
+
+        
+
+     
+
+  // city.append("g").selectAll("circle")
+  //     .data(function(d,i){ return d.values}) 
+  //     .enter()
+  //       .append("circle")
+  //       .attr("r", circleRadius)
+  //       .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
+  //       .attr("data-display-name", function(dd){  return dd.id })
+  //       .attr("data-job", function(dd){ return dd.jobTitle })
+  //       .attr("cx", function(dd){ return dd.X })
+  //       .attr("cy", function(dd){ return dd.Y })
+  //       .style('fill', function(dd) {
+  //           if (dd.id) {
+
+  //           }
+  //           return "url(#circles-6)";
+  //       }).attr("class",function(dd){ return "gv-graph-photo-circle "+ dd.changeClass });
          
 
-  city.each(function(d, i) {
-        select(this).selectAll('text')
-            .data(function(d){return d.values })
-        .enter()
-            .append('text')
-            .attr('class', 'name-txt')
-            .attr("text-anchor","middle")
-            .attr("x", function(d){ return d.X })
-            .attr("y", function(d){ return (d.Y + circleRadius + nameLabelPad) })
-            .text(function(dd) { return (d.id.split(" ")[1]) })
-        });
+  // city.each(function(d, i) {
+  //       select(this).selectAll('text')
+  //           .data(function(d){return d.values })
+  //       .enter()
+  //           .append('text')
+  //           .attr('class', 'name-txt')
+  //           .attr("text-anchor","middle")
+  //           .attr("x", function(d){ return d.X })
+  //           .attr("y", function(d){ return (d.Y + circleRadius + nameLabelPad) })
+  //           .text(function(dd) { return (d.id.split(" ")[1]) })
+  //       });
 
-
-function cleanID(string) {
-    return string.toLowerCase().replace(/[^\w\s]/gi, '').replace(/ /g, "");
-}
-
-
-
-function appendPatterns(svg) {
-    dataIn.uniqueNames.forEach((pic) => {
-
-      console.log(pic.imgPath)
-
-        const pattern = svg.append("pattern")
-            .attr("id", "pic-" + cleanID(pic.dataRef))
-            .attr("x", "0%")
-            .attr("y", "0%")
-            .attr("patternContentUnits", "objectBoundingBox")
-            .attr("height", "1")
-            .attr("width", "1")
-            .attr("viewBox", "0 0 20 20")
-
-        pattern.append("image")
-            .attr("x", "0%")
-            .attr("y", "0%")
-            .attr("height", "20")
-            // .attr("preserveAspectRatio", "none")
-            .attr("width", "20")
-            .attr("xlink:href", pic.imgPath)
-    });
-
-
-}
 
 
 
@@ -423,6 +411,8 @@ function diagonal(s, d) {
 
     return tpath
 } 
+
+
 
 
   //add boxes behind names
@@ -490,7 +480,14 @@ function diagonal(s, d) {
  //        })
  // labelsArr.map((label) =>{
  //  console.log(label)
- // })      
+ // })   
+
+ addDivs(dataIn);   
+}
+
+
+function addDivs(){
+  
 }
 
 
@@ -596,8 +593,7 @@ function formatData(data) {
           });
 
         if(o.sortOn!="TBC" && o.sortOn!="na" ){  tmp.push(o); }
-        
-        
+
 
     })
     politicians = tmp;
