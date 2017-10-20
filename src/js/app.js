@@ -50,7 +50,7 @@ var embedWidth = containerDiv.node().getBoundingClientRect().width;
 var embedHeight = containerDiv.node().getBoundingClientRect().height;
 var width = embedWidth
 var height = embedHeight;
-var margin, circleRadius, textWrapVal, nameLabelPad, lanes, xShim, yTickTextPad, laneXPad;
+var margin, circleRadius, textWrapVal, nameLabelPad, lanes, xShim, yTickTextPad, laneXPad, labelAdjust, movePaths;
 
 var plotBgH = 0;
     if(width == 300){
@@ -62,52 +62,74 @@ var plotBgH = 0;
       xShim = 0.5;
       yTickTextPad = 9;
       laneXPad = 24;
+      labelAdjust = 24;
+      movePaths = 30;
     }
-    else if(width > 300 && width < 620){
+    else if(width == 380){
       circleRadius = 15;
       nameLabelPad = 12;
-      margin = {top: 40, right: 0, bottom: 20, left: 100};
-      lanes = [ 0, ((embedWidth-margin.left)/3), (((embedWidth-margin.left)/3)*2) ];
+      margin = {top: 60, right: 80, bottom: 20, left: 20};
+      lanes = [ -18, 75, 167 ];
       textWrapVal = 70;
-      xShim = 0.5;
+      xShim = 0;
       yTickTextPad = 9;
-      laneXPad = 27;
+      laneXPad = 48;
+      labelAdjust = 24;
+      movePaths = 27;
     }
-    else if(width == 620){
+    else if(width == 580){
       circleRadius = 18;
       nameLabelPad = 14;
-      lanes = [ -27, 110, 250 ];
+      lanes = [ -54, 76, 200 ];
       margin = {top: 80, right: 155, bottom: 20, left: 50};
       textWrapVal = 100;
       xShim = 0.5;
       yTickTextPad = 12;
-      laneXPad = 69;
+      laneXPad = 62;
+      labelAdjust = 22;
+      movePaths = 10;
+    }
+    else if(width == 620){
+      circleRadius = 18;
+      nameLabelPad = 14;
+      lanes = [ -54, 86, 225 ];
+      margin = {top: 80, right: 155, bottom: 20, left: 50};
+      textWrapVal = 100;
+      xShim = 0.5;
+      yTickTextPad = 12;
+      laneXPad = 72;
+      labelAdjust = 22;
+      movePaths = 10;
     }
     else if(width == 780){
       circleRadius = 26;
       nameLabelPad = 14;
-      lanes = [ 0, 192, 388 ];
-      margin = {top: 80, right: 195, bottom: 20, left: 0};
-      textWrapVal = 140;
+      lanes = [ -18, 167, 351 ];
+      margin = {top: 80, right: 210, bottom: 20, left: 20};
+      textWrapVal = 200;
       xShim = 0.82;
       yTickTextPad = 12;
-      laneXPad = 96;
+      laneXPad = 93;
+      labelAdjust = 15;
+      movePaths = 60;
     }
     else if(width == 860){
       circleRadius = 26;
       nameLabelPad = 14;
-      lanes = [ 0, 214, 430 ];
-      margin = {top: 80, right: 210, bottom: 20, left: 0};
+      lanes = [ -24, 185, 395 ];
+      margin = {top: 80, right: 210, bottom: 20, left: 20};
       textWrapVal = 200;
       xShim = 0.82;
       yTickTextPad = 12;
       laneXPad = 108;
+      labelAdjust = 15;
+      movePaths = 72;
     }
 
     width = width - margin.left - margin.right,
     height = height - margin.top - margin.bottom;
 
-xr.get('https://interactive.guim.co.uk/docsdata-test/1VXBeHCsgJB-SUXjgIlfZk2W8qdZicCw7vs4JWd4lkJY.json').then((resp) => {
+    xr.get('https://interactive.guim.co.uk/docsdata-test/1VXBeHCsgJB-SUXjgIlfZk2W8qdZicCw7vs4JWd4lkJY.json').then((resp) => {
     let d = resp.data.sheets;
     var newObj = {};
     
@@ -328,13 +350,13 @@ function drawChart(dataIn){
 
   var lineFunction = line()
         .x(function(d) { return d.X; })
-        .y(function(d) { return d.Y; })
+        .y(function(d) { return d.Y +3; })
         //.curve(roundStep);   
 
   var city = g.selectAll(".city")
       .data(politicians)
         .enter().append("g")
-        .attr("transform", "translate(" + x(xShim) + ",0)")
+        .attr("transform", "translate(" + movePaths + ",0)")
         .attr("class", "city");
 
   city.append("path")
@@ -346,28 +368,25 @@ function drawChart(dataIn){
       return lineFunction(d.values) 
     });
 
-  bubblesDiv.style("margin-left", margin.left+"px");
-  bubblesDiv.style("margin-top", margin.top-margin.bottom+"px");  
-
   var bubble = bubblesDiv.selectAll(".bubble")
        .data(dataIn.flatArr)
         .enter().append("div")
-          .attr("class", function(d){ console.log(d); return "gv-bubble "}) //+d.changeClass
+          .attr("class", function(d){ return "gv-bubble"}) //+d.changeClass
+          .attr("data-name", function(d){ return d.Name.split(" ").join("-").toLowerCase()} )
           .style("height", (circleRadius*2)+"px")
           .style("width", (circleRadius*2)+"px")
           .style("left", function(d){ return (d.xPlot+circleRadius) +"px"})
           .style("top", function(d){ return d.yPlot-circleRadius +"px"})
           .style("background-image", function(d){ return "url("+d.Photo +")" })
         .append("div")
-          .attr("class", function(d){ console.log(d); return "gv-bubble-label"})
-          .attr("data-label",function(d){ return d.Name} )
+          .attr("class", function(d){  return "gv-bubble-label"})
+          .attr("data-name", function(d){ return d.Name.split(" ").join("-").toLowerCase()} )
           .html(function(d){ return d.Name.split(" ")[1]} )
-          .style("top", function(d){ return (circleRadius*2.1) +"px"});
+          .style("top", function(d){ return (circleRadius*2.1) +"px"})
+          .style("left", function(d){ return 0  - labelAdjust +"px"});
 
 
-        
-
-     
+  updateBubbleClasses();
 
   // city.append("g").selectAll("circle")
   //     .data(function(d,i){ return d.values}) 
@@ -464,7 +483,7 @@ function diagonal(s, d) {
 
  let labelsArr = document.getElementsByTagName("tspan");  
 
- console.log(labelsArr.length)
+ 
 
  for (var i = 0; i < labelsArr.length; i++){
     var s = labelsArr[i].innerHTML;
@@ -482,12 +501,32 @@ function diagonal(s, d) {
  //  console.log(label)
  // })   
 
- addDivs(dataIn);   
+
 }
 
 
-function addDivs(){
-  
+function updateBubbleClasses(){
+  var linesArr = document.querySelectorAll(".gv-line");
+  var bubblesArr = document.querySelectorAll(".gv-bubble");
+
+  console.log(bubblesArr);
+
+  for (var i = 0; i < linesArr.length; i++){
+        var dataName = linesArr[i].getAttribute("data-name");
+       if(linesArr[i].classList[1] == "change" && dataName != "tbc" &&  dataName != "na" ){
+          for(var k = 0; k < bubblesArr.length; k++){
+              if(bubblesArr[k].getAttribute("data-name") == dataName){
+                  var el = bubblesArr[k]
+                  el.classList.add("change")
+              }
+          }
+         
+       }
+  }
+
+  for(var k = 0; k < bubblesArr.length; k++){
+      console.log(bubblesArr[k].getAttribute("data-name"))
+  }
 }
 
 
@@ -540,9 +579,18 @@ function formatData(data) {
 
     a.map((o, k) => {
         o.xPlot = o.cabinetRef * plotUnitCabinet;
-        o.yPlot = (o.jobRef * plotUnitJob) + (circleRadius + 6);
+        o.yPlot = (o.jobRef * plotUnitJob) + (circleRadius) +3;
         o.dataRef = o.Name.split(" ").join("-").toLowerCase();
         
+
+        // var tempJob = o.objArr[0].Title;
+        // o.objArr.map((item) => {
+        //     o.jobChange = false;
+        //       if(item.Title != tempJob){
+        //           o.jobChange = true;
+        //       } 
+
+        //   });
         if (!o.Photo){ 
           o.Photo = silhouetteURL; 
         }
@@ -558,12 +606,13 @@ function formatData(data) {
 
           tickLabelsY.push(newObj);
         }
+
     })
 
     var uniqueNames = [...new Set(a.map(item => item.dataRef))];
     var tempArr = [];
 
-    uniqueNames.map((uniq) => {
+     uniqueNames.map((uniq) => {
      let newUniq = {}; 
      newUniq.dataRef = uniq;
 
@@ -596,6 +645,9 @@ function formatData(data) {
 
 
     })
+
+
+
     politicians = tmp;
 
     let ministries = groupBy(a, 'jobRef');

@@ -83,19 +83,51 @@ body{
 
 .gv-bubble-holder{
   position:absolute;
-  width:100%;
   height: 500px;
+  width:300px;
   top: 0px;
   left:0px;
+  margin:21px 0 0 64px; 
+
+  @include mq(embedThreeEighty){
+      width:380px;
+       margin:42px 0 0 15px;
+  }
+
+  @include mq(embedFiveEighty){
+        width:580px;
+        margin: 60px 0 0 22px;
+  }
+
+  @include mq(embedSixTwenty){
+        width:620px;
+        margin:60px 0 0 30px
+  }
+
+
+  @include mq(embedSevenEighty){
+    width:780px;
+      margin:60px 0 0 40px;
+  }
+
+  @include mq(embedEightSixty){
+    width:860px;
+      margin:60px 0 0 48px;
+  }
+
 }
 
 .gv-bubble{
-  background-color:red;
   position:absolute;
   border-radius:300px;
   background-repeat:no-repeat;
   background-size:contain;
+  background-color:$gv-no-accent;
   border: 3px solid $gv-no-accent;
+
+  &.change{
+      border: 3px solid $gv-accent;
+  }
 }
 
 .gv-bubble-label{
