@@ -4,7 +4,7 @@ import Handlebars from 'handlebars/dist/handlebars'
 import bubbleTemplate from '../templates/bubble.html'
 
 import {
-    select, 
+    select,
     selectAll
 } from 'd3-selection';
 
@@ -12,10 +12,10 @@ import {
     line,
     rect,
     circle,
-    curveBasis,
-    curveCardinal,
-    curveStepAfter,
-    curveStep,
+    // curveBasis,
+    // curveCardinal,
+    // curveStepAfter,
+    // curveStep,
     linkHorizontal
 } from 'd3-shape';
 
@@ -56,7 +56,7 @@ var plotBgH = 0;
     if(width == 300){
       circleRadius = 15;
       nameLabelPad = 12;
-      margin = {top: 40, right: 0, bottom: 20, left: 70};
+      margin = {top: 40, right: 0, bottom: 20, left: 80};
       lanes = [ 0, ((embedWidth-margin.left)/3), (((embedWidth-margin.left)/3)*2) ];
       textWrapVal = 70;
       xShim = 0.5;
@@ -68,7 +68,7 @@ var plotBgH = 0;
     else if(width == 380){
       circleRadius = 15;
       nameLabelPad = 12;
-      margin = {top: 60, right: 80, bottom: 20, left: 20};
+      margin = {top: 60, right: 80, bottom: 20, left: 30};
       lanes = [ -18, 75, 167 ];
       textWrapVal = 70;
       xShim = 0;
@@ -132,7 +132,7 @@ var plotBgH = 0;
     xr.get('https://interactive.guim.co.uk/docsdata-test/1VXBeHCsgJB-SUXjgIlfZk2W8qdZicCw7vs4JWd4lkJY.json').then((resp) => {
     let d = resp.data.sheets;
     var newObj = {};
-    
+
     newObj = formatData(d.Sheet1);
 
     newObj.copyData = d.Sheet2;
@@ -148,7 +148,7 @@ function buildView(newObj){
 
   // document.querySelector(".gv-img-holder").innerHTML = svgHTML;
 
-  drawChart(newObj); 
+  drawChart(newObj);
 }
 
 
@@ -179,7 +179,7 @@ function drawChart(dataIn){
     bubblesDiv = containerDiv.append("div").attr("class","gv-bubble-holder"),
     g = svg.append("g").attr("height", height).attr("width",width).attr("transform", "translate(" + margin.left + "," + (margin.top-margin.bottom) + ")");
     var x = scaleLinear().range([0, width]);
-    var y = scaleLinear().range([height - (margin.top+margin.bottom), 0]); 
+    var y = scaleLinear().range([height - (margin.top+margin.bottom), 0]);
     var yH = scaleLinear().range([embedHeight, 0  ]);
 
     x.domain([0, (dataIn.max_x + 2)]);
@@ -193,10 +193,10 @@ function drawChart(dataIn){
     var politicians = dataIn.politicians.map(function(obj) {
        obj.jobChange ? obj.changeClass = "change" :  obj.changeClass = "nochange" ;
 
-      return {    
+      return {
         id: obj.sortOn,
         jobTitle: obj.objArr[0].Name,
-        changeClass: obj.changeClass, 
+        changeClass: obj.changeClass,
         values: obj.objArr.map(function(d,k) {
           var tempOb;
           var sourceVar = [d.xPlot,d.yPlot]
@@ -204,7 +204,7 @@ function drawChart(dataIn){
           if(obj.objArr[k+1]){ var targetVar = [obj.objArr[k+1].xPlot, obj.objArr[k+1].yPlot]; tempOb = { X: d.xPlot, Y: d.yPlot, changeClass: obj.changeClass, id: obj.sortOn, jobTitle: obj.objArr[0].Title, source: {x: sourceVar[0], y: sourceVar[1]}, target: {x:targetVar[0], y:targetVar[1] }  } }
 
           if(!obj.objArr[k+1]){ tempOb = { X: d.xPlot, Y: d.yPlot, changeClass: obj.changeClass, id: obj.sortOn, jobTitle: obj.objArr[0].Title, source: {x: sourceVar[0], y: sourceVar[1]} } }
-          
+
           return tempOb;
         }),
 
@@ -213,25 +213,25 @@ function drawChart(dataIn){
           var tempOb = {};
           var sourceVar = [d.xPlot, d.yPlot]
 
-          if(obj.objArr[k+1]){ 
-              var targetVar = [obj.objArr[k+1].xPlot, obj.objArr[k+1].yPlot]; 
+          if(obj.objArr[k+1]){
+              var targetVar = [obj.objArr[k+1].xPlot, obj.objArr[k+1].yPlot];
 
-              tempOb.source = { }, 
+              tempOb.source = { },
               tempOb.source.x = sourceVar[0];
-              tempOb.source.y = sourceVar[1]; 
+              tempOb.source.y = sourceVar[1];
 
-              tempOb.target = { }, 
+              tempOb.target = { },
               tempOb.target.x = targetVar[0];
-              tempOb.target.y = targetVar[1]; 
+              tempOb.target.y = targetVar[1];
           }
 
-          if(!obj.objArr[k+1]){ 
-              tempOb.source = { }, 
+          if(!obj.objArr[k+1]){
+              tempOb.source = { },
               tempOb.source.x = sourceVar[0];
-              tempOb.source.y = sourceVar[1]; 
+              tempOb.source.y = sourceVar[1];
           }
           pathArr.push(tempOb);
-          
+
           return pathArr;
         })
       };
@@ -252,7 +252,7 @@ function drawChart(dataIn){
 //add lanes
   g.append("g")
       .attr("class", "axis axis--y cabinet cameron")
-      .attr("transform", "translate(" + lanes[0] + ",0)")   
+      .attr("transform", "translate(" + lanes[0] + ",0)")
       .call(axisLeft(yH))
     .append("text")
       .attr("y", -9)
@@ -312,7 +312,7 @@ function drawChart(dataIn){
 
   svg.append("g")
       .attr("class", "axis axis--y labels")
-      .attr("transform", "translate(3," + (margin.top-margin.bottom) + ")")   
+      .attr("transform", "translate(3," + (margin.top-margin.bottom) + ")")
       .call(axisLeft(y).ticks(tickLabelsY.length)
       .tickFormat(function(d,i){ return tickLabelsY[i].Title }))
       .selectAll(".tick")
@@ -322,11 +322,11 @@ function drawChart(dataIn){
       .attr("y", yTickTextPad)
       .attr("x", 6)
       .style("text-anchor", "start")
-      .call(wrap, textWrapVal)    
+      .call(wrap, textWrapVal)
 
   svg.append("g")
       .attr("class", "axis axis--y labels right-side")
-      .attr("transform", "translate("+(embedWidth-margin.right-6)+"," + (margin.top-margin.bottom) + ")")   
+      .attr("transform", "translate("+(embedWidth-margin.right-6)+"," + (margin.top-margin.bottom) + ")")
       .call(axisLeft(y).ticks(tickLabelsY.length)
       .tickFormat(function(d,i){ return tickLabelsY[i].Title }))
       .selectAll(".tick")
@@ -350,22 +350,32 @@ function drawChart(dataIn){
 
   var lineFunction = line()
         .x(function(d) { return d.X; })
-        .y(function(d) { return d.Y +3; })
-        //.curve(roundStep);   
+        .y(function(d) { return d.Y; })
+        //.curve(roundStep);
 
   var city = g.selectAll(".city")
       .data(politicians)
         .enter().append("g")
-        .attr("transform", "translate(" + movePaths + ",0)")
+        //.attr("transform", "translate(" + movePaths + ",0)")
         .attr("class", "city");
 
   city.append("path")
       .attr("class", function(d){ return "gv-line "+d.changeClass})
       .attr("data-name", function(d) { return d.jobTitle.split(" ").join("-").toLowerCase() })
      //  .attr("d", function(d) {  return link(d.pathData) });
-     .attr("d", function(d) {  
+     .attr("d", function(d) {
      // console.log(link(d.pathData))
-      return lineFunction(d.values) 
+     console.log(d.values)
+      let values = [];
+      let spacer = 10;
+      d.values.forEach(function(v, i){
+        values.push({X: v.X -spacer , Y: v.Y})
+        values.push({X: v.X + circleRadius + spacer, Y: v.Y})
+        values.push({X: v.X + 2*circleRadius + spacer, Y: v.Y})
+      });
+      values.shift();
+      values.pop();
+      return lineFunction(values)
     });
 
   var bubble = bubblesDiv.selectAll(".bubble")
@@ -389,7 +399,7 @@ function drawChart(dataIn){
   updateBubbleClasses();
 
   // city.append("g").selectAll("circle")
-  //     .data(function(d,i){ return d.values}) 
+  //     .data(function(d,i){ return d.values})
   //     .enter()
   //       .append("circle")
   //       .attr("r", circleRadius)
@@ -404,7 +414,7 @@ function drawChart(dataIn){
   //           }
   //           return "url(#circles-6)";
   //       }).attr("class",function(dd){ return "gv-graph-photo-circle "+ dd.changeClass });
-         
+
 
   // city.each(function(d, i) {
   //       select(this).selectAll('text')
@@ -429,16 +439,16 @@ function diagonal(s, d) {
             ${d.y} ${d.x}`
 
     return tpath
-} 
+}
 
 
 
 
   //add boxes behind names
   // city.append("g").selectAll("rect")
-  //     .data(function(d,i){ return d.values}) 
+  //     .data(function(d,i){ return d.values})
   //     .enter()
-  //       .append("rect")        
+  //       .append("rect")
   //       .attr("data-name", function(dd){ return dd.id.split(" ").join("-").toLowerCase() })
   //       .attr("data-display-name", function(dd){  return dd.id })
   //       .attr("data-job", function(dd){ return dd.jobTitle })
@@ -446,13 +456,13 @@ function diagonal(s, d) {
   //       .attr("y", function(dd){ return dd.Y  + (circleRadius/2) + nameLabelPad})
   //       .attr("width", function(dd){ return (dd.id.length * 6) } )
   //       .attr("height", 14)
-  //       .attr("class",function(dd){ return "gv-graph-name-label-bg "+ dd.changeClass }); 
+  //       .attr("class",function(dd){ return "gv-graph-name-label-bg "+ dd.changeClass });
 
 
 // add curved lines -- not working
 //https://tutel.me/c/programming/questions/45641570/d3+v4+collapsible+tree+using+the+d3+link+generator
   // city.append("path").selectAll("path")
-  //     .data(function(d,i){ return d.values}) 
+  //     .data(function(d,i){ return d.values})
   //     .enter().append("path")
   //       .attr("class", function(d){ return "gv-line "+d.changeClass})
   //       .attr("data-name", function(d) { return d.jobTitle.split(" ").join("-").toLowerCase() })
@@ -467,7 +477,7 @@ function diagonal(s, d) {
 // add curved lines -- not working
   // city.each(function(d, i) {
   //   select(this).selectAll('path')
-  //     .data(function(d,i){ return d.values}) 
+  //     .data(function(d,i){ return d.values})
   //     .enter()
   //       .append("path")
   //       .attr("class", function(d){ return "gv-line "+d.changeClass})
@@ -477,13 +487,13 @@ function diagonal(s, d) {
   //         var o = {x: dd.X, y: dd.Y}
   //         //return diagonal(o, o)
   //         return lineFunction(dd)
-  //     }); 
+  //     });
   //  });
 
 
- let labelsArr = document.getElementsByTagName("tspan");  
+ let labelsArr = document.getElementsByTagName("tspan");
 
- 
+
 
  for (var i = 0; i < labelsArr.length; i++){
     var s = labelsArr[i].innerHTML;
@@ -499,7 +509,7 @@ function diagonal(s, d) {
  //        })
  // labelsArr.map((label) =>{
  //  console.log(label)
- // })   
+ // })
 
 
 }
@@ -509,7 +519,7 @@ function updateBubbleClasses(){
   var linesArr = document.querySelectorAll(".gv-line");
   var bubblesArr = document.querySelectorAll(".gv-bubble");
 
-  console.log(bubblesArr);
+  //console.log(bubblesArr);
 
   for (var i = 0; i < linesArr.length; i++){
         var dataName = linesArr[i].getAttribute("data-name");
@@ -520,13 +530,13 @@ function updateBubbleClasses(){
                   el.classList.add("change")
               }
           }
-         
+
        }
   }
 
-  for(var k = 0; k < bubblesArr.length; k++){
-      console.log(bubblesArr[k].getAttribute("data-name"))
-  }
+  // for(var k = 0; k < bubblesArr.length; k++){
+  //     console.log(bubblesArr[k].getAttribute("data-name"))
+  // }
 }
 
 
@@ -563,10 +573,10 @@ function formatData(data) {
     groups = sortByKeys(groups);
 
     groups.map((obj, k) => {
-     
+
     	obj.groupRef = k;
         obj.objArr.map((ob,i) => {
-          
+
         	ob.cabinetRef = obj.groupRef;
         	a.push(ob);
         })
@@ -581,28 +591,28 @@ function formatData(data) {
         o.xPlot = o.cabinetRef * plotUnitCabinet;
         o.yPlot = (o.jobRef * plotUnitJob) + (circleRadius) +3;
         o.dataRef = o.Name.split(" ").join("-").toLowerCase();
-        
+
 
         // var tempJob = o.objArr[0].Title;
         // o.objArr.map((item) => {
         //     o.jobChange = false;
         //       if(item.Title != tempJob){
         //           o.jobChange = true;
-        //       } 
+        //       }
 
         //   });
-        if (!o.Photo){ 
-          o.Photo = silhouetteURL; 
+        if (!o.Photo){
+          o.Photo = silhouetteURL;
         }
-          
+
         if(k < 27){
           var newObj = { };
           newObj.Title = o.Title;
           newObj.Highlight = "no-highlight";
-          
-          if (o.Categ == "Great office of the state"){ 
+
+          if (o.Categ == "Great office of the state"){
             newObj.Highlight = "highlight" ;
-          } 
+          }
 
           tickLabelsY.push(newObj);
         }
@@ -613,12 +623,12 @@ function formatData(data) {
     var tempArr = [];
 
      uniqueNames.map((uniq) => {
-     let newUniq = {}; 
+     let newUniq = {};
      newUniq.dataRef = uniq;
 
         a.map((o) => {
           if(newUniq.dataRef == o.dataRef){
-            newUniq.imgPath = o.Photo; 
+            newUniq.imgPath = o.Photo;
             newUniq.imgSize = circleRadius*2;
           }
         })
@@ -637,7 +647,7 @@ function formatData(data) {
             o.jobChange = false;
               if(item.Title != tempJob){
                   o.jobChange = true;
-              } 
+              }
 
           });
 
@@ -653,9 +663,9 @@ function formatData(data) {
     let ministries = groupBy(a, 'jobRef');
         ministries = sortByKeys(ministries);
         ministries.map((o) => {
-            o.jobTitle = o.objArr[0].Title;  
+            o.jobTitle = o.objArr[0].Title;
       })
-    
+
     newObj.tickLabelsY = tickLabelsY;
     newObj.flatArr = a;
     newObj.groups = groups;
@@ -697,7 +707,7 @@ function sortByKeys(obj) {
 function wrap(text, width) {
 
   text.each(function() {
-   
+
     var text = select(this),
         words = text.text().split(/\s+/).reverse(),
         word,

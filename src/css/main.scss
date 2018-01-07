@@ -2,7 +2,7 @@
 @import "fonts";
 $gv-accent: #4bc6df;
 $gv-no-accent: #63717a;
-$neutral-1: #333333; 
+$neutral-1: #333333;
 $neutral-2: #767676;
 $neutral-3: #bdbdbd;
 $neutral-6: #f6f6f6;
@@ -87,7 +87,7 @@ body{
   width:300px;
   top: 0px;
   left:0px;
-  margin:21px 0 0 64px; 
+  margin:21px 0 0 64px;
 
   @include mq(embedThreeEighty){
       width:380px;
@@ -125,6 +125,10 @@ body{
   background-color:$gv-no-accent;
   border: 3px solid $gv-no-accent;
 
+  &[data-value="na"]{
+    display: none;
+  }
+  
   &.change{
       border: 3px solid $gv-accent;
   }
@@ -141,5 +145,3 @@ body{
     font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
     fill: $neutral-3;
 }
-
-
