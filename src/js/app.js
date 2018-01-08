@@ -541,11 +541,12 @@ function updateBubbleClasses(){
 
 
 function formatData(data) {
-    var newObj = {};
+  var newObj = {};
     let count = 0;
 
     // get unique job refs
     var unique = [...new Set(data.map(item => item.Title))];
+
     var jobTitlesArr = [];
     var a = [];
     var tickLabelsY = [];
@@ -605,7 +606,7 @@ function formatData(data) {
           o.Photo = silhouetteURL;
         }
 
-        if(k < 27){
+        if(k < (data.length / 3)){
           var newObj = { };
           newObj.Title = o.Title;
           newObj.Highlight = "no-highlight";
@@ -676,7 +677,7 @@ function formatData(data) {
     newObj.politicians = politicians;
     newObj.uniqueNames = uniqueNames;
     newObj.plotUnitJob = plotUnitJob;
-
+      console.log(newObj)
     return newObj;
 }
 
