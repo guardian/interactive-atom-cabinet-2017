@@ -129,7 +129,7 @@ var plotBgH = 0;
     width = width - margin.left - margin.right,
     height = height - margin.top - margin.bottom;
 
-    xr.get('https://interactive.guim.co.uk/docsdata-test/1VXBeHCsgJB-SUXjgIlfZk2W8qdZicCw7vs4JWd4lkJY.json').then((resp) => {
+    xr.get('https://interactive.guim.co.uk/docsdata/1VXBeHCsgJB-SUXjgIlfZk2W8qdZicCw7vs4JWd4lkJY.json').then((resp) => {
     let d = resp.data.sheets;
     var newObj = {};
 
