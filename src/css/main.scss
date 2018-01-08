@@ -145,3 +145,34 @@ body{
     font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
     fill: $neutral-3;
 }
+
+.chart-wrapper {
+
+  &.collapsed {
+
+    overflow: hidden;
+    margin-bottom: 40px;
+    height: 445px;
+
+    @include mq(embedThreeEighty){
+      height: 455px;
+    }
+
+    @include mq(embedSixTwenty){
+          height: 650px;
+    }
+
+  }
+}
+
+.expand-btn {
+  background: #005689;
+  color: #fff;
+  position: absolute;
+  bottom: 0;
+  font-family: "Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 50px;
+  cursor: pointer;
+}
