@@ -15,6 +15,7 @@
 
   @include mq(embedSixTwenty){
        width:620px;
+       height: 1900px;
   }
 
   @include mq(embedSevenEighty){
@@ -39,10 +40,10 @@
     @include mq(embedFiveEighty){
       font-size: 14px;
       line-height: 18px;
-      
+
     }
 
-    
+
   }
 
   .name-txt{
@@ -54,7 +55,7 @@
      @include mq(embedFiveEighty){
         font-size: 12px;
         line-height: 14px;
-        
+
     }
   }
   }
@@ -150,7 +151,7 @@
         fill:$neutral-1;
       }
     }
-    
+
   }
 }
 
@@ -196,12 +197,12 @@
   &.even{
 
     fill:rgba($gv-no-accent,0.1);
-   
+
       @include mq(embedThreeEighty){
 
-        
+
       }
-    
+
   }
 }
 

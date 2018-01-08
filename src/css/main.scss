@@ -125,10 +125,10 @@ body{
   background-color:$gv-no-accent;
   border: 3px solid $gv-no-accent;
 
-  &[data-value="na"]{
+  &[data-name="na"]{
     display: none;
   }
-  
+
   &.change{
       border: 3px solid $gv-accent;
   }
