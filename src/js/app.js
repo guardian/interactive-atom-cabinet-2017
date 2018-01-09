@@ -643,13 +643,26 @@ function formatData(data) {
     let tmp = [];
     politicians.map((o) => {
      var tempJob = o.objArr[0].Title;
-          o.objArr.map((item) => {
-            o.jobChange = false;
-              if(item.Title != tempJob){
-                  o.jobChange = true;
-              }
 
-          });
+          if (o.objArr.length > 1){
+            o.objArr.map((item, k) => {
+              console.log(item.Cabinet)
+                if(item.Cabinet == "may-i" && o.objArr[k+1]){
+                    if(o.objArr[k].Title != o.objArr[k+1].Title)  {
+                        o.jobChange = true;
+                    }
+                }
+
+            })
+
+          }
+          // o.objArr.map((item, k) => {
+          //   o.jobChange = false;
+          //     if(item.Title != tempJob){
+          //         o.jobChange = true;
+          //     }
+
+          // });
 
         if(o.sortOn!="TBC" && o.sortOn!="na" ){  tmp.push(o); }
 
