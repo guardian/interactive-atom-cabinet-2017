@@ -152,14 +152,14 @@ body{
 
     overflow: hidden;
     margin-bottom: 40px;
-    height: 445px;
+    height: 430px;
 
     @include mq(embedThreeEighty){
-      height: 450px;
+      height: 435px;
     }
 
     @include mq(embedSixTwenty){
-          height: 640px;
+          height: 615px;
     }
 
   }
