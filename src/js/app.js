@@ -520,18 +520,18 @@ function updateBubbleClasses(){
 
   //console.log(bubblesArr);
 
-  for (var i = 0; i < linesArr.length; i++){
-        var dataName = linesArr[i].getAttribute("data-name");
-       if(linesArr[i].classList[1] == "change" && dataName != "tbc" &&  dataName != "na" ){
-          for(var k = 0; k < bubblesArr.length; k++){
-              if(bubblesArr[k].getAttribute("data-name") == dataName){
-                  var el = bubblesArr[k]
-                  el.classList.add("change")
-              }
-          }
+    for (var i = 0; i < linesArr.length; i++){
+          var dataName = linesArr[i].getAttribute("data-name");
+         if(linesArr[i].classList[1] == "change" && dataName != "tbc" &&  dataName != "na" ){
+            for(var k = 0; k < bubblesArr.length; k++){
+                if(bubblesArr[k].getAttribute("data-name") == dataName){
+                    var el = bubblesArr[k]
+                    el.classList.add("change")
+                }
+            }
 
-       }
-  }
+         }
+    }
 
   // for(var k = 0; k < bubblesArr.length; k++){
   //     console.log(bubblesArr[k].getAttribute("data-name"))

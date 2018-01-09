@@ -160,13 +160,17 @@
   stroke: $gv-no-accent;
   stroke-width: 5px;
   opacity: 0.75;
-
+  transform: translate(0, 3px);
   &.change{
     stroke: $gv-accent;
+    @include mq(embedSevenEighty){
+      
+    }
   }
 
   @include mq(embedSevenEighty){
-    transform: translateX(58px);
+    transform: translate(58px, 3px);
+    stroke-width: 9px;
   }
 }
 
