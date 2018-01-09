@@ -365,7 +365,6 @@ function drawChart(dataIn){
      //  .attr("d", function(d) {  return link(d.pathData) });
      .attr("d", function(d) {
      // console.log(link(d.pathData))
-     console.log(d.values)
       let values = [];
       let spacer = 10;
       d.values.forEach(function(v, i){
@@ -677,7 +676,6 @@ function formatData(data) {
     newObj.politicians = politicians;
     newObj.uniqueNames = uniqueNames;
     newObj.plotUnitJob = plotUnitJob;
-      console.log(newObj)
     return newObj;
 }
 
