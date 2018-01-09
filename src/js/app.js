@@ -647,9 +647,11 @@ function formatData(data) {
           if (o.objArr.length > 1){
             o.objArr.map((item, k) => {
               console.log(item.Cabinet)
-                if(item.Cabinet == "may-i" && o.objArr[k+1]){
+                if(item.Cabinet == "may-ia" && o.objArr[k+1]){
                     if(o.objArr[k].Title != o.objArr[k+1].Title)  {
                         o.jobChange = true;
+
+                        console.log(o)
                     }
                 }
 
