@@ -164,6 +164,10 @@
   &.change{
     stroke: $gv-accent;
   }
+
+  @include mq(embedSevenEighty){
+    transform: translateX(58px);
+  }
 }
 
 .gv-graph-photo-circle{
